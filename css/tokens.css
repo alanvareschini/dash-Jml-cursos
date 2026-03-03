@@ -1,0 +1,54 @@
+:root {
+
+    /* ==========================
+       CORES BASE
+    ========================== */
+
+    --bg-dark: #0c0f1a;
+    --bg-light: #eef1f6;
+
+    --text-white: #ffffff;
+    --text-main: #1a1f36;
+
+    --text-muted: #6c757d;
+    --text-soft: #64748b;
+
+    /* ==========================
+       CORES JML
+    ========================== */
+
+    --jml-purple: #c86bff;
+    --jml-purple-glow: #e0aaff;
+
+    --jml-green: #35ff8a;
+    --jml-green-glow: #7dffb2;
+
+    /* ==========================
+       CORES NEUTRAS UI
+    ========================== */
+
+    --border-light: #dee2e6;
+    --border-soft: #e9ecef;
+    --border-ultra-soft: #e2e8f0;
+
+    --gray-bg-soft: #f8f9fa;
+    --gray-bg-light: #f1f3f5;
+    --gray-bg-select: #f1f5f9;
+
+    /* ==========================
+       RADIUS
+    ========================== */
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    /* ==========================
+       SOMBRAS
+    ========================== */
+
+    --shadow-soft: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-medium: 0 3px 8px rgba(108, 117, 125, 0.2);
+    --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+}

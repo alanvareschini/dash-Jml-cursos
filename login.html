@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Login | JML Cursos</title>
+    <meta name="description" content="Faça login para acessar o dashboard do JML Cursos">
+
+    <!-- CSS externo -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body class="login-page">
+
+    <!-- Estrelas cadentes -->
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+
+    <!-- Elementos animados do fundo -->
+    <div class="floating-circle"></div>
+    <div class="waves"></div>
+
+    <main class="login-container">
+
+        <div class="login-header">
+            <img src="img-logo\image.png" alt="JML Cursos" class="login-logo" width="180" height="60">
+
+            <h1 class="login-title">Bem-vindo de volta!</h1>
+            <p class="login-subtitle">Faça login para acessar sua conta</p>
+        </div>
+
+        <!-- Alertas com ícones -->
+        <div class="login-alert" id="loginAlert" role="alert" hidden>
+            <i class="fas fa-exclamation-circle alert-icon"></i>
+            <span class="alert-message"></span>
+        </div>
+
+        <form id="formLogin" class="login-form" method="POST" action="php/login.php">
+
+            <div class="form-group">
+                <label for="email" class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    E-mail
+                </label>
+                <div class="input-container">
+                    <input type="email" id="email" name="email" class="form-input" placeholder="seu@email.com" required
+                        autocomplete="email" autofocus>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="senha" class="form-label">
+                    <i class="fas fa-lock"></i>
+                    Senha
+                </label>
+                <div class="input-container">
+                    <input type="password" id="senha" name="senha" class="form-input" placeholder="••••••••" required
+                        autocomplete="current-password" minlength="6">
+                    <button type="button" class="password-toggle" id="toggleSenha">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="lembrar" id="lembrar">
+                    <span class="checkbox-text">Lembrar meu acesso</span>
+                </label>
+
+
+            </div>
+
+            <button type="submit" class="btn-login" id="btnLogin">
+                <span>Entrar no sistema</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+
+
+
+
+        </form>
+
+        <footer class="login-footer">
+            <p>&copy; 2024 JML Cursos. Todos os direitos reservados.</p>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/modules/login.js"></script>
+    <script>
+        // Função para mostrar/esconder senha
+        // CORREÇÃO: Inverter a lógica do olho
+        document.getElementById('toggleSenha')?.addEventListener('click', function () {
+            const senhaInput = document.getElementById('senha');
+            const icon = this.querySelector('i');
+
+            if (senhaInput.type === 'password') {
+                senhaInput.type = 'text';
+                icon.classList.remove('fa-eye-slash'); // ANTES: fa-eye
+                icon.classList.add('fa-eye'); // ANTES: fa-eye-slash
+            } else {
+                senhaInput.type = 'password';
+                icon.classList.remove('fa-eye'); // ANTES: fa-eye-slash
+                icon.classList.add('fa-eye-slash'); // ANTES: fa-eye
+            }
+        });
+
+        // Animação do botão de login
+        document.getElementById('formLogin')?.addEventListener('submit', function (e) {
+            const btnLogin = document.getElementById('btnLogin');
+            btnLogin.classList.add('loading');
+
+            // Simulação (remover isso quando integrado com PHP)
+            setTimeout(() => {
+                btnLogin.classList.remove('loading');
+            }, 2000);
+        });
+
+        // Validação em tempo real
+        document.getElementById('email')?.addEventListener('input', function () {
+            if (this.validity.valid) {
+                this.style.borderColor = '#10b981';
+            } else {
+                this.style.borderColor = '#ef4444';
+            }
+        });
+
+        document.getElementById('senha')?.addEventListener('input', function () {
+            if (this.value.length >= 6) {
+                this.style.borderColor = '#10b981';
+            } else if (this.value.length > 0) {
+                this.style.borderColor = '#ef4444';
+            } else {
+                this.style.borderColor = '#e5e7eb';
+            }
+        });
+    </script>
+</body>
+
+</html>

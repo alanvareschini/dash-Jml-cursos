@@ -1,0 +1,39 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 18px; /* aumenta escala geral (melhor que zoom 125%) */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: #EEF2F7;
+    color: var(--text-main);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==========================
+   FOOTER
+========================== */
+
+.main-footer {
+    margin-top: 60px;
+    padding: 20px 0;
+    background: linear-gradient(180deg, #f8f9fa 0%, #eef1f4 100%);
+    border-top: 1px solid #e5e9ef;
+    text-align: center;
+    font-size: 13px;
+    color: #6c757d;
+    letter-spacing: 0.3px;
+}
+
+.main-footer p {
+    margin: 0;
+    font-weight: 500;
+}

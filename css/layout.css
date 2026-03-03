@@ -1,0 +1,101 @@
+/* ==========================
+   LAYOUT GLOBAL
+========================== */
+
+.container {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
+    padding: 0 clamp(24px, 4vw, 48px);
+}
+
+
+/* ==========================
+   CONTEÚDO DAS ABAS
+========================== */
+
+.tab-content {
+    flex: 1;
+    padding: 32px 0;
+    width: 100%;
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@media (max-width: 1024px) {
+
+    #dashboard.tab-content {
+        padding: 30px 20px;
+    }
+
+    .dashboard-header h2 {
+        font-size: 22px;
+    }
+
+    .dashboard-header p {
+        font-size: 14px;
+    }
+
+    .filter-row {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .filter-group {
+        flex: 1 1 45%;
+    }
+
+    .total-badge {
+        min-width: 160px;
+    }
+
+    .graficos-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+/* ==========================
+   RESPONSIVIDADE
+========================== */
+
+/* Desktop médio */
+@media (max-width: 1200px) {
+    .container {
+        max-width: 1200px;
+    }
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+    .container {
+        max-width: 100%;
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+        /* remove sombra em telas menores */
+        padding: 0 20px;
+    }
+
+    .tab-content {
+        padding: 24px 0;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    .tab-content {
+        padding: 20px 0;
+    }
+}

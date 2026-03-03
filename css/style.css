@@ -1,0 +1,329 @@
+/* ==========================
+   LOGIN PAGE - JML STYLE
+   Inspirado no seu CSS principal
+========================== */
+
+/* Usando as mesmas variáveis do seu tema */
+:root {
+    --bg-dark: #0c0f1a;
+    --jml-purple: #c86bff;
+    --jml-purple-glow: #e0aaff;
+    --jml-green: #35ff8a;
+    --jml-green-glow: #7dffb2;
+    --text-white: #ffffff;
+    --text-main: #1a1f36;
+    --bg-light: #eef1f6;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-light);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efeito de fundo com gradiente igual ao do header */
+.login-page::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 50%,
+            rgba(200, 107, 255, 0.15),
+            transparent 40%),
+        radial-gradient(circle at 80% 50%,
+            rgba(53, 255, 138, 0.15),
+            transparent 40%);
+    pointer-events: none;
+}
+
+/* Container principal - igual aos cards do dashboard */
+.login-container {
+    background: #ffffff;
+    width: 100%;
+    max-width: 440px;
+    padding: 48px 40px;
+    border-radius: 16px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.05);
+    border: 1px solid #dee2e6;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+/* Efeito de borda com gradiente igual aos cards da home */
+.login-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(120deg,
+            var(--jml-purple),
+            var(--jml-green));
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: 0.3s ease;
+    pointer-events: none;
+}
+
+.login-container:hover::before {
+    opacity: 1;
+}
+
+/* Header do login */
+.login-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.login-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    position: relative;
+    display: inline-block;
+}
+
+/* Linha decorativa igual ao dashboard-header h2::after */
+.login-title::after {
+    content: "";
+    display: block;
+    width: 60%;
+    height: 4px;
+    margin: 10px auto 0;
+    border-radius: 4px;
+    background: linear-gradient(90deg,
+            var(--jml-purple),
+            var(--jml-green));
+}
+
+.login-subtitle {
+    font-size: 16px;
+    color: #6c757d;
+    margin-top: 15px;
+}
+
+/* Alertas - estilo igual ao ranking-item */
+.login-alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+    border: 1px solid;
+    position: relative;
+    background: #f8f9fa;
+}
+
+.login-alert.show {
+    display: block;
+}
+
+.alert-erro {
+    background: #f8f9fa;
+    color: #dc3545;
+    border-color: #e9ecef;
+    border-left: 4px solid #dc3545;
+}
+
+/* Formulário */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+}
+
+/* Inputs estilo select do dashboard */
+.form-input {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.form-input:focus {
+    border-color: var(--jml-purple);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(200, 107, 255, 0.1);
+}
+
+.form-input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+/* Checkbox estilo */
+.form-options {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6c757d;
+    transition: 0.2s ease;
+}
+
+.checkbox-label:hover {
+    color: var(--text-main);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--jml-purple);
+}
+
+/* Botão - estilo igual aos botões do ranking */
+.btn-login {
+    background: linear-gradient(120deg,
+            rgba(200, 107, 255, 0.8),
+            rgba(53, 255, 138, 0.8));
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 12px rgba(200, 107, 255, 0.4);
+}
+
+.btn-login:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: 0 0 18px rgba(53, 255, 138, 0.6);
+}
+
+.btn-login:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.btn-login:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(0.3);
+}
+
+/* Footer igual ao main-footer */
+.login-footer {
+    margin-top: 32px;
+    padding: 20px 0 0;
+    border-top: 2px solid rgba(200, 107, 255, 0.2);
+    text-align: center;
+    position: relative;
+}
+
+.login-footer p {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.5);
+    margin: 0;
+}
+
+/* Efeito de brilho no footer */
+.login-footer::after {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -50%;
+    width: 200%;
+    height: 2px;
+    background: linear-gradient(90deg,
+            #c86bff,
+            #35ff8a,
+            #c86bff);
+    animation: gradientMove 4s linear infinite;
+    opacity: 0.3;
+}
+
+/* Animações */
+@keyframes gradientMove {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(50%); }
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 32px 24px;
+    }
+    
+    .login-title {
+        font-size: 24px;
+    }
+    
+    .btn-login {
+        padding: 12px;
+    }
+}
+
+/* Loading state do botão */
+.btn-login.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn-login.loading::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}

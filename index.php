@@ -1,0 +1,214 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: login.html");
+    exit;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard JML Cursos</title>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <div class="header-left">
+            <div class="logo-container">
+                <img src="img-logo/simbolo_grupo_jml.png.webp" alt="JML Cursos" class="logo">
+            </div>
+            <h1>Painel de Indicadores JML</h1>
+        </div>
+
+        <nav class="tabs-container">
+            <ul class="tabs-list">
+                <li>
+                    <button id="btn-home" class="tab-button active">
+                        <i class="fa-solid fa-house"></i> Home
+                    </button>
+                </li>
+
+                <li>
+                    <button id="btn-dashboard" class="tab-button">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </button>
+                </li>
+
+                <li>
+                    <button id="btn-ranking" class="tab-button">
+                        <i class="fa-solid fa-trophy"></i> Ranking
+                    </button>
+                </li>
+                <span class="tab-indicator"></span>
+            </ul>
+        </nav>
+
+        <div class="header-right">
+            <div class="dropdown">
+             <span class="badge dropdown-toggle">Olá, Admin</span>
+                <div class="dropdown-menu">
+                    <form action="php/logout.php" method="POST">
+                        <button type="submit" class="dropdown-item">Sair</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </header>
+
+    <!-- 🔹 TROCA DE DIV PARA MAIN -->
+    <main class="container">
+
+        <!-- ================= HOME ================= -->
+        <section id="home" class="tab-content active">
+
+            <div class="home-welcome">
+                <h2>Olá! O que vamos analisar hoje?</h2>
+                <p>Selecione uma das áreas abaixo para visualizar os dados de participação e origem.</p>
+
+                <div class="home-cards">
+                    <div class="card-link">
+                        <span>📊</span>
+                        <h3>Dashboard</h3>
+                        <p>Gráficos detalhados por curso e evento individual.</p>
+                    </div>
+
+                    <div class="card-link">
+                        <span>🏆</span>
+                        <h3>Rankings</h3>
+                        <p>Os cursos com mais respostas e os melhores canais de entrada.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= DASHBOARD ================= -->
+        <section id="dashboard" class="tab-content">
+
+            <div class="dashboard-header">
+                <h2>Visão Geral dos Cursos</h2>
+                <p>Acompanhe o desempenho dos cursos e eventos com base nas respostas coletadas.</p>
+            </div>
+
+            <div class="filter-row">
+
+                <div class="filter-group">
+                    <label>Ano:
+                        <select id="filtroAno">
+                            <option value="2023">2023</option>
+                            <option value="2024" selected>2024</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </label>
+
+                    <label>Curso:
+                        <select id="filtroCurso"></select>
+                    </label>
+                </div>
+
+                <div class="total-badge">
+                    <h2>Total de Respostas:
+                        <span id="total-respostas">0</span>
+                    </h2>
+                </div>
+
+            </div>
+
+            <!-- Adicione uma classe para agrupar os botões -->
+            <div class="grafico-botoes">
+                <button class="grafico-btn" data-tipo="horizontal">📊 Barras verticais</button>
+                <button class="grafico-btn" data-tipo="linhasMultiplas">📈 Linhas Múltiplas</button>
+            </div>
+
+            <!-- 🔹 NOVO WRAPPER DOS GRÁFICOS -->
+            <div class="graficos-wrapper">
+                <div id="graficos">
+                    <p class="placeholder">Carregando dados...</p>
+                </div>
+            </div>
+
+
+        </section>
+
+        <!-- ================= RANKING ================= -->
+        <section id="ranking" class="tab-content">
+
+            <!-- 🔹 WRAPPER INTERNO PARA ORGANIZAÇÃO -->
+            <div class="toolbar-ranking">
+                <div class="toolbar-content">
+
+                    <div class="filter-group">
+                        <label>Ano:
+                            <select id="filtroAnoRanking">
+                                <option value="">Todos os anos</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                            </select>
+                        </label>
+
+                        <label>Tipo:
+                            <select id="filtroRanking">
+                                <option value="eventos">Eventos</option>
+                                <option value="origens">Canais de Entrada</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="ranking-actions">
+
+                        <button id="btnToggleRanking" class="switch-btn" type="button">
+                            🏆 Mostrar todos os eventos
+                        </button>
+
+                        <div id="viewOptionsOrigens" class="view-switch">
+                            <button class="switch-btn active" data-view="lista">
+                                📋 Lista
+                            </button>
+
+                            <button class="switch-btn" data-view="grafico">
+                                📊 Gráfico
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="ranking-wrapper">
+
+                <div id="ranking-container">
+                    <div id="rankingEventos"></div>
+                    <div id="listaRankingOrigens" class="hidden"></div>
+                    <canvas id="rankingOrigens" class="hidden"></canvas>
+                </div>
+
+                <div id="legendaFiltro" class="info-label"></div>
+
+            </div>
+
+        </section>
+
+    </main>
+    <footer class="main-footer">
+        <p>© 2026 JML Cursos • Painel de Indicadores • Todos os direitos reservados</p>
+    </footer>
+    <script type="module" src="js/core/main.js"></script>
+
+
+</body>
+
+</html>
