@@ -1,4 +1,6 @@
 <?php
+header('Content-Type: application/json');
+
 $conn = new mysqli("db", "root", "root", "jml_cursos");
 $conn->set_charset("utf8mb4");
 
@@ -10,22 +12,25 @@ if ($ano) {
             WHERE ano = ?
             GROUP BY nome_evento
             ORDER BY total_respostas DESC";
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $ano);
     $stmt->execute();
     $result = $stmt->get_result();
 } else {
+
     $sql = "SELECT nome_evento, SUM(quantidades_respostas) AS total_respostas
             FROM respostas_origem
             GROUP BY nome_evento
             ORDER BY total_respostas DESC";
+
     $result = $conn->query($sql);
 }
 
 $ranking = [];
+
 while ($row = $result->fetch_assoc()) {
     $ranking[] = $row;
 }
 
 echo json_encode($ranking);
-?>

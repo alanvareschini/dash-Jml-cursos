@@ -14,7 +14,7 @@ export async function carregarCursos() {
 
     select.innerHTML = '<option value="">Selecione o curso</option>';
 
-    const response = await fetch(`./php/get_cursos.php?ano=${ano}`);
+    const response = await fetch(`http://localhost:8080/backend/api/get_cursos.php?ano=${ano}`);
     const cursos = await response.json();
 
     cursos.forEach(curso => {
@@ -32,16 +32,18 @@ export async function carregarCursos() {
 }
 
 export async function carregarDashboard() {
+    const containerRanking = document.getElementById('rankingEventos');
+    containerRanking.innerHTML = '<div class="loader"></div>';
     const ano = document.getElementById('filtroAno').value;
     const curso = document.getElementById('filtroCurso').value;
     if (!curso) return;
 
-    const response = await fetch(`./php/get_dados.php?ano=${ano}&curso=${encodeURIComponent(curso)}`);
+    const response = await fetch(`http://localhost:8080/backend/api/get_dados.php?ano=${ano}&curso=${encodeURIComponent(curso)}`);
     const dadosResponse = await response.json();
     const dados = dadosResponse.dados || dadosResponse;
 
     const totalGeral = dados.reduce((soma, item) => soma + parseInt(item.total), 0);
-    document.getElementById('total-respostas').innerText = totalGeral;
+    animarNumero("total-respostas", totalGeral);
 
     const container = document.getElementById('graficos');
     container.innerHTML = '';
@@ -111,6 +113,10 @@ export async function carregarDashboard() {
                 responsive: true,
                 maintainAspectRatio: false,
                 aspectRatio: 2,
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart'
+                },
                 plugins: {
                     legend: { position: 'top' },
                     tooltip: {
@@ -215,4 +221,25 @@ export function inicializarControleTipoGrafico() {
             carregarDashboard();
         });
     });
+}
+
+function animarNumero(id, valorFinal) {
+
+    const el = document.getElementById(id);
+    let atual = 0;
+
+    const incremento = Math.ceil(valorFinal / 40);
+
+    const intervalo = setInterval(() => {
+
+        atual += incremento;
+
+        if (atual >= valorFinal) {
+            atual = valorFinal;
+            clearInterval(intervalo);
+        }
+
+        el.textContent = atual;
+
+    }, 25);
 }

@@ -1,10 +1,11 @@
 <?php
 session_start();
+header('Content-Type: application/json');
 
-// Apaga todas as variáveis de sessão
+// Limpa variáveis de sessão
 $_SESSION = [];
 
-// Remove o cookie de sessão
+// Remove cookie da sessão
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(
@@ -18,10 +19,10 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// Destrói a sessão
+// Destrói sessão
 session_destroy();
 
-// Redireciona para a página de login
-header("Location: ../login.html");
+echo json_encode([
+    "success" => true
+]);
 exit;
-?>

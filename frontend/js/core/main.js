@@ -4,20 +4,21 @@ import { atualizarRanking } from '../modules/ranking.js';
 import { toggleRanking, mudarVisaoOrigem } from '../modules/ranking.js';
 import { inicializarControleTipoGrafico } from '../modules/dashboard.js';
 import { initTabs } from "../modules/tabs.js";
+import { logout } from "../services/api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     initTabs();
 });
 
-fetch("php/auth_check.php", {
+fetch("http://localhost:8080/backend/api/auth_check.php", {
     credentials: "include"
 })
-.then(res => res.json())
-.then(data => {
-    if (!data.logado) {
-        window.location.href = "login.html";
-    }
-});
+    .then(res => res.json())
+    .then(data => {
+        if (!data.authenticated) {
+            window.location.href = "login.html";
+        }
+    });
 
 window.addEventListener('DOMContentLoaded', () => {
 
@@ -26,7 +27,7 @@ window.addEventListener('DOMContentLoaded', () => {
     carregarCursos();
     atualizarRanking();
     inicializarControleTipoGrafico();
-    
+
 
     const filtroAno = document.getElementById('filtroAno');
     const filtroCurso = document.getElementById('filtroCurso');
@@ -34,6 +35,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (filtroAno) {
         filtroAno.addEventListener('change', async () => {
             await carregarCursos();
+            carregarDashboard();
         });
     }
 
@@ -60,7 +62,10 @@ window.addEventListener('DOMContentLoaded', () => {
         });
 
     document.getElementById('btn-ranking')
-        ?.addEventListener('click', () => abrirAba('ranking'));
+        ?.addEventListener('click', () => {
+            abrirAba('ranking');
+            atualizarRanking();
+        });
 
     document.getElementById('btnToggleRanking')
         ?.addEventListener('click', toggleRanking);
@@ -71,6 +76,11 @@ window.addEventListener('DOMContentLoaded', () => {
                 mudarVisaoOrigem(btn.dataset.view, btn);
             });
         });
+
+    document.getElementById("btnLogout")?.addEventListener("click", async () => {
+        await logout();
+        window.location.href = "login.html";
+    });
 
 
     // CARDS HOME
