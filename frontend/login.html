@@ -36,8 +36,7 @@
     <main class="login-container">
 
         <div class="login-header">
-            <img src="img-logo\image.png" alt="JML Cursos" class="login-logo" width="180" height="60">
-
+           <img src="img-logo/image.png" alt="JML Cursos">
             <h1 class="login-title">Bem-vindo de volta!</h1>
             <p class="login-subtitle">Faça login para acessar sua conta</p>
         </div>
@@ -48,8 +47,7 @@
             <span class="alert-message"></span>
         </div>
 
-        <form id="formLogin" class="login-form" method="POST" action="php/login.php">
-
+        <form id="formLogin" class="login-form" method="POST" action="http://localhost:8080/backend/api/login.php">
             <div class="form-group">
                 <label for="email" class="form-label">
                     <i class="fas fa-envelope"></i>
@@ -101,7 +99,7 @@
     </main>
 
     <!-- Scripts -->
-    <script src="js/modules/login.js"></script>
+    <script type="module" src="js/modules/login.js"></script>
     <script>
         // Função para mostrar/esconder senha
         // CORREÇÃO: Inverter a lógica do olho

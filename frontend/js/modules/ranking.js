@@ -62,6 +62,9 @@ export async function carregarRankingEventos() {
 
     let ranking = await getRankingEventos(ano);
 
+    renderTop3(ranking, "eventos");
+    renderListaRanking(ranking, "eventos");
+
     const totalEventosAno = ranking.length;
 
     // Se for 2023 ou 2024, mostrar todos e esconder botão
@@ -79,9 +82,9 @@ export async function carregarRankingEventos() {
 
     ranking.forEach((item, index) => {
         let medalha = '';
-        if (index === 0) medalha = '🥇';
-        else if (index === 1) medalha = '🥈';
-        else if (index === 2) medalha = '🥉';
+        if (index === 0) medalha = "🥇";
+        else if (index === 1) medalha = "🥈";
+        else if (index === 2) medalha = "🥉";
         else medalha = `${index + 1}º`;
 
         // 1. PRIMEIRO: Criar o elemento
@@ -122,6 +125,9 @@ export async function carregarRankingOrigens() {
 
     let ranking = await getRankingOrigens(ano);
 
+    renderTop3(ranking, "origens");
+    renderListaRanking(ranking, "origens");
+
     if (!state.mostrarTodosRanking) {
         ranking = ranking.slice(0, 5);
     }
@@ -142,7 +148,7 @@ export async function carregarRankingOrigens() {
             linha.innerHTML = `
     <div class="ranking-info">
         <span class="ranking-posicao">${medalha}</span>
-        <span class="ranking-nome">${item.origem}</span>
+        <span class="ranking-nome">${medalha} ${item.origem}</span>
     </div>
     <span class="ranking-total">${item.total_respostas}</span>
 `;
@@ -178,6 +184,12 @@ export async function carregarRankingOrigens() {
 // ==========================
 
 export function atualizarRanking() {
+
+    document.getElementById("rankingSkeleton")?.classList.remove("hidden");
+    document.getElementById("rankingTop3")?.classList.add("hidden");
+    document.getElementById("rankingLista")?.classList.add("hidden");
+    document.getElementById("rankingGrafico")?.classList.add("hidden");
+
     const tipo = document.getElementById('filtroRanking').value;
     const legenda = document.getElementById('legendaFiltro');
     const btnToggle = document.getElementById('btnToggleRanking');
@@ -196,7 +208,7 @@ export function atualizarRanking() {
         // Mostra eventos e esconde origens
         document.getElementById('rankingEventos').style.display = 'block';
         document.getElementById('rankingOrigens')?.classList.add('hidden');
-document.getElementById('listaRankingOrigens')?.classList.add('hidden');
+        document.getElementById('listaRankingOrigens')?.classList.add('hidden');
 
         if (btnToggle) btnToggle.style.display = 'inline-block';
         carregarRankingEventos();
@@ -209,6 +221,71 @@ document.getElementById('listaRankingOrigens')?.classList.add('hidden');
         // Carrega os dados (que irá chamar mudarVisaoOrigem no final)
         carregarRankingOrigens();
     }
+    setTimeout(() => {
+
+        document.getElementById("rankingSkeleton")?.classList.add("hidden");
+        document.getElementById("rankingTop3")?.classList.remove("hidden");
+        document.getElementById("rankingLista")?.classList.remove("hidden");
+
+    }, 300);
+    
 }
 
+export function renderTop3(dados, tipo) {
+
+    const container = document.getElementById("rankingTop3");
+
+    container.innerHTML = "";
+
+    const top3 = dados.slice(0, 3);
+
+    top3.forEach((item, index) => {
+
+        const nome = tipo === "eventos"
+            ? item.nome_evento
+            : item.origem;
+
+        const card = document.createElement("div");
+
+        card.className = "top3-card";
+
+        card.innerHTML = `
+            <span class="posicao">#${index + 1}</span>
+            <h3>${nome}</h3>
+            <p>${item.total_respostas}</p>
+        `;
+
+        container.appendChild(card);
+
+    });
+
+}
+
+
+export function renderListaRanking(dados, tipo) {
+
+    const lista = document.getElementById("rankingLista");
+
+    lista.innerHTML = "";
+
+    dados.forEach((item, index) => {
+
+        const nome = tipo === "eventos"
+            ? item.nome_evento
+            : item.origem;
+
+        const div = document.createElement("div");
+
+        div.className = "ranking-item";
+
+        div.innerHTML = `
+            <span>${index + 1}. ${nome}</span>
+            <strong>${item.total_respostas}</strong>
+        `;
+
+        lista.appendChild(div);
+
+    });
+
+}
 

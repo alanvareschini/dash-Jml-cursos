@@ -2,7 +2,7 @@
 session_start();
 header('Content-Type: application/json');
 
-$conn = new mysqli("db", "root", "root", "jml_cursos");
+require_once '../config/db.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -14,18 +14,20 @@ if (!$email || !$senha) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = ?");
-$stmt->bind_param("s", $email);
-$stmt->execute();
+$stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
+$stmt->execute([$email]);
 
-$result = $stmt->get_result();
+$usuario = $stmt->fetch();
 
-if ($result->num_rows === 1) {
-    $usuario = $result->fetch_assoc();
-
+if ($usuario) {
     if (password_verify($senha, $usuario['senha'])) {
         $_SESSION['usuario_id'] = $usuario['id'];
-        echo json_encode(["success" => true]);
+        $_SESSION['usuario_nome'] = $usuario['nome'];
+
+        echo json_encode([
+            "success" => true,
+            "nome" => $usuario['nome']
+        ]);
         exit;
     }
 }

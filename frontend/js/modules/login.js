@@ -4,7 +4,7 @@ document.getElementById("formLogin").addEventListener("submit", function(e) {
     const email = document.getElementById("email").value;
     const senha = document.getElementById("senha").value;
 
-    fetch("php/login.php", {
+    fetch("http://localhost:8080/backend/api/login.php", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -15,11 +15,12 @@ document.getElementById("formLogin").addEventListener("submit", function(e) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            window.location.href = "index.php";
+            window.location.href = "index.html";
         } else {
             alert("Email ou senha inválidos");
         }
     });
+    
 });
 
 

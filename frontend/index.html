@@ -1,12 +1,3 @@
-<?php
-session_start();
-
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.html");
-    exit;
-}
-?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -57,11 +48,9 @@ if (!isset($_SESSION['usuario_id'])) {
 
         <div class="header-right">
             <div class="dropdown">
-             <span class="badge dropdown-toggle">Olá, Admin</span>
+                <span class="badge dropdown-toggle">Olá, Admin</span>
                 <div class="dropdown-menu">
-                    <form action="php/logout.php" method="POST">
-                        <button type="submit" class="dropdown-item">Sair</button>
-                    </form>
+                    <button id="btnLogout" class="dropdown-item">Sair</button>
                 </div>
             </div>
         </div>
@@ -186,6 +175,27 @@ if (!isset($_SESSION['usuario_id'])) {
 
                     </div>
                 </div>
+            </div>
+            <div id="rankingContent">
+
+
+                <div id="rankingSkeleton">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                </div>
+
+                <!-- Top 3 -->
+                <div id="rankingTop3"></div>
+
+                <!-- Lista ranking -->
+                <div id="rankingLista"></div>
+
+                <!-- Gráfico -->
+                <div id="rankingGrafico">
+                    <canvas id="rankingChart"></canvas>
+                </div>
+
             </div>
 
             <div class="ranking-wrapper">
