@@ -1,62 +1,75 @@
-document.getElementById("formLogin").addEventListener("submit", function(e) {
-    e.preventDefault();
+import { resolveApiBase } from '../services/apiBase.js';
 
-    const email = document.getElementById("email").value;
-    const senha = document.getElementById("senha").value;
+const API = resolveApiBase();
 
-    fetch("http://localhost:8080/backend/api/login.php", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, senha })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = "index.html";
-        } else {
-            alert("Email ou senha inválidos");
-        }
-    });
-    
-});
+function showLoginError(message) {
+    alert(message);
+}
 
-
-document.addEventListener('DOMContentLoaded', function() {
-    
-    const emailInput = document.getElementById('email');
-    const lembrarCheckbox = document.getElementById('lembrar');
+document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('formLogin');
-    
+    const emailInput = document.getElementById('email');
+    const senhaInput = document.getElementById('senha');
+    const lembrarCheckbox = document.getElementById('lembrar');
+
+    if (!form || !emailInput || !senhaInput || !lembrarCheckbox) return;
 
     const emailSalvo = localStorage.getItem('email_lembrado');
-    
     if (emailSalvo) {
-        emailInput.value = emailSalvo;        // Preenche o campo
-        lembrarCheckbox.checked = true;       // Marca o checkbox
+        emailInput.value = emailSalvo;
+        lembrarCheckbox.checked = true;
     }
-    
 
-    form.addEventListener('submit', function() {
-        
-        if (lembrarCheckbox.checked) {
-            // Salva o email no localStorage
-            localStorage.setItem('email_lembrado', emailInput.value);
-        } else {
-            // Remove o email salvo
-            localStorage.removeItem('email_lembrado');
-        }
-        
-        // O formulário vai continuar o envio normal para o PHP
-        // (não precisa de preventDefault aqui porque queremos que envie)
-    });
-    
-    // 3. (OPCIONAL) Se quiser limpar quando desmarcar
-    lembrarCheckbox.addEventListener('change', function() {
+    lembrarCheckbox.addEventListener('change', function () {
         if (!this.checked) {
             localStorage.removeItem('email_lembrado');
+        }
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = emailInput.value;
+        const senha = senhaInput.value;
+
+        if (lembrarCheckbox.checked) {
+            localStorage.setItem('email_lembrado', email);
+        } else {
+            localStorage.removeItem('email_lembrado');
+        }
+
+        try {
+            const res = await fetch(`${API}login.php`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, senha })
+            });
+
+            const raw = await res.text();
+            let data;
+
+            try {
+                data = JSON.parse(raw);
+            } catch {
+                throw new Error(`Resposta invalida do servidor: ${raw.slice(0, 120)}`);
+            }
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Erro ao autenticar');
+            }
+
+            if (data.success) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            showLoginError('Email ou senha invalidos');
+        } catch (error) {
+            console.error('Erro no login:', error);
+            showLoginError('Erro ao processar login. Verifique servidor e banco.');
         }
     });
 });

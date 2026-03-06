@@ -4,32 +4,54 @@ import { state } from '../core/state.js';
 let chartRankingOrigens = null;
 let visaoAtualOrigem = 'lista';
 
+function mostrarElemento(el) {
+    if (!el) return;
+    el.classList.remove('hidden');
+}
+
+function esconderElemento(el) {
+    if (!el) return;
+    el.classList.add('hidden');
+}
+
+function atualizarBotoesVisaoOrigem(tipoVisao) {
+    const optionsOrigem = document.getElementById('viewOptionsOrigens');
+    if (!optionsOrigem) return;
+
+    optionsOrigem.querySelectorAll('.switch-btn').forEach(btn => {
+        const ativo = btn.dataset.view === tipoVisao;
+        btn.classList.toggle('active', ativo);
+    });
+}
+
 export function mudarVisaoOrigem(tipoVisao, elemento) {
     visaoAtualOrigem = tipoVisao;
 
     const lista = document.getElementById('listaRankingOrigens');
     const grafico = document.getElementById('rankingOrigens');
 
-    // 1. Gerenciar a classe 'active' (Sombra)
-    // Se a função recebeu o 'elemento' (clique manual)
+    if (!lista || !grafico) return;
+
     if (elemento) {
         const grupo = elemento.parentElement;
-        grupo.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
+        grupo?.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
         elemento.classList.add('active');
-    }
-
-    // 2. Alternar Visibilidade
-    if (tipoVisao === 'lista') {
-        lista.classList.remove('hidden');
-        grafico.classList.add('hidden');
     } else {
-        lista.classList.add('hidden');
-        grafico.classList.remove('hidden');
-
-        setTimeout(() => {
-            if (chartRankingOrigens) chartRankingOrigens.resize();
-        }, 100);
+        atualizarBotoesVisaoOrigem(tipoVisao);
     }
+
+    if (tipoVisao === 'lista') {
+        mostrarElemento(lista);
+        esconderElemento(grafico);
+        return;
+    }
+
+    esconderElemento(lista);
+    mostrarElemento(grafico);
+
+    setTimeout(() => {
+        if (chartRankingOrigens) chartRankingOrigens.resize();
+    }, 100);
 }
 
 export function toggleRanking() {
@@ -37,64 +59,55 @@ export function toggleRanking() {
     const botao = document.getElementById('btnToggleRanking');
 
     if (botao) {
-        // Adiciona ou remove a sombra branca/cinza
-        botao.classList.toggle('active');
-
+        botao.classList.toggle('active', state.mostrarTodosRanking);
         botao.innerText = state.mostrarTodosRanking
-            ? '🏆 Mostrar apenas Top 5'
-            : '🏆 Mostrar todos';
+            ? 'Mostrar apenas Top 5'
+            : 'Mostrar todos';
     }
+
     atualizarRanking();
 }
 
-// ==========================
-// RANKING EVENTOS
-// ==========================
-
 export async function carregarRankingEventos() {
-    const ano = document.getElementById('filtroAnoRanking').value;
+    const ano = document.getElementById('filtroAnoRanking')?.value ?? '';
     const botao = document.getElementById('btnToggleRanking');
+    const container = document.getElementById('rankingEventos');
 
-    let url = './php/get_ranking_eventos.php';
-    if (ano) {
-        url += `?ano=${ano}`;
+    if (!container) return;
+
+    container.innerHTML = '<div class="loader"></div>';
+    mostrarElemento(container);
+
+    let ranking = [];
+    try {
+        ranking = await getRankingEventos(ano);
+    } catch (error) {
+        console.error('Erro ao carregar ranking de eventos:', error);
+        container.innerHTML = '<p class="placeholder">Nao foi possivel carregar o ranking de eventos.</p>';
+        return;
     }
-
-    let ranking = await getRankingEventos(ano);
-
-    renderTop3(ranking, "eventos");
-    renderListaRanking(ranking, "eventos");
 
     const totalEventosAno = ranking.length;
 
-    // Se for 2023 ou 2024, mostrar todos e esconder botão
     if (ano === '2023' || ano === '2024') {
         state.mostrarTodosRanking = true;
         if (botao) botao.style.display = 'none';
-    } else {
-        if (!state.mostrarTodosRanking) {
-            ranking = ranking.slice(0, 5);
-        }
+    } else if (!state.mostrarTodosRanking) {
+        ranking = ranking.slice(0, 5);
     }
 
-    const container = document.getElementById('rankingEventos');
     container.innerHTML = '';
 
     ranking.forEach((item, index) => {
-        let medalha = '';
-        if (index === 0) medalha = "🥇";
-        else if (index === 1) medalha = "🥈";
-        else if (index === 2) medalha = "🥉";
-        else medalha = `${index + 1}º`;
+        const medalha = `${index + 1}o`;
 
-        // 1. PRIMEIRO: Criar o elemento
         const linha = document.createElement('div');
-
-        // 2. DEPOIS: Adicionar classe e atributos
         linha.classList.add('ranking-item');
-        linha.setAttribute('data-label', `Quantidade de respostas por evento : ${item.total_respostas}`);
+        if (index === 0) linha.classList.add('podio-ouro');
+        if (index === 1) linha.classList.add('podio-prata');
+        if (index === 2) linha.classList.add('podio-bronze');
+        linha.setAttribute('data-label', `Quantidade de respostas por evento: ${item.total_respostas}`);
 
-        // 3. POR ÚLTIMO: Definir o HTML interno
         linha.innerHTML = `
             <div class="ranking-linha">
                 <span class="ranking-posicao">${medalha}</span>
@@ -106,186 +119,168 @@ export async function carregarRankingEventos() {
         container.appendChild(linha);
     });
 
-    // Mostrar total de eventos do ano
     const titulo = document.createElement('div');
     titulo.style.marginBottom = '10px';
     titulo.style.fontWeight = '600';
-    titulo.innerHTML = `Total de eventos em ${ano || 'Todos os anos'}: ${totalEventosAno}`;
+    titulo.textContent = `Total de eventos em ${ano || 'Todos os anos'}: ${totalEventosAno}`;
 
     container.prepend(titulo);
 }
-// ==========================
-// RANKING ORIGENS (CANAIS DE ENTRADA)
-// ==========================
 
 export async function carregarRankingOrigens() {
-    const ano = document.getElementById('filtroAnoRanking').value;
-    let url = './php/get_ranking_origens.php';
-    if (ano) url += `?ano=${ano}`;
+    const ano = document.getElementById('filtroAnoRanking')?.value ?? '';
+    const containerEventos = document.getElementById('rankingEventos');
+    const containerLista = document.getElementById('listaRankingOrigens');
+    const canvasOrigens = document.getElementById('rankingOrigens');
 
-    let ranking = await getRankingOrigens(ano);
+    if (!containerLista || !canvasOrigens) return;
 
-    renderTop3(ranking, "origens");
-    renderListaRanking(ranking, "origens");
+    esconderElemento(containerEventos);
+    containerLista.innerHTML = '<div class="loader"></div>';
+
+    let ranking = [];
+    try {
+        ranking = await getRankingOrigens(ano);
+    } catch (error) {
+        console.error('Erro ao carregar ranking de origens:', error);
+        containerLista.innerHTML = '<p class="placeholder">Nao foi possivel carregar o ranking de origens.</p>';
+        mudarVisaoOrigem('lista');
+        return;
+    }
 
     if (!state.mostrarTodosRanking) {
         ranking = ranking.slice(0, 5);
     }
 
-    // 1. Atualiza a LISTA
-    const containerLista = document.getElementById('listaRankingOrigens');
-    if (containerLista) {
-        containerLista.innerHTML = '';
-        ranking.forEach((item, index) => {
-            let medalha = (index === 0) ? '🥇' : (index === 1) ? '🥈' : (index === 2) ? '🥉' : `${index + 1}º`;
+    containerLista.innerHTML = '';
 
-            const linha = document.createElement('div');
-            linha.classList.add('ranking-item');
+    ranking.forEach((item, index) => {
+        const medalha = `${index + 1}o`;
 
-            // ALTERE PARA ESTA LINHA:
-            linha.setAttribute('data-label', `Quantidade de respostas por origem : ${item.total_respostas}`);
+        const linha = document.createElement('div');
+        linha.classList.add('ranking-item');
+        if (index === 0) linha.classList.add('podio-ouro');
+        if (index === 1) linha.classList.add('podio-prata');
+        if (index === 2) linha.classList.add('podio-bronze');
+        linha.setAttribute('data-label', `Quantidade de respostas por origem: ${item.total_respostas}`);
 
-            linha.innerHTML = `
-    <div class="ranking-info">
-        <span class="ranking-posicao">${medalha}</span>
-        <span class="ranking-nome">${medalha} ${item.origem}</span>
-    </div>
-    <span class="ranking-total">${item.total_respostas}</span>
-`;
-            containerLista.appendChild(linha);
-        });
-    }
+        linha.innerHTML = `
+            <div class="ranking-linha">
+                <span class="ranking-posicao">${medalha}</span>
+                <span class="ranking-nome">${item.origem}</span>
+            </div>
+            <span class="ranking-total">${item.total_respostas}</span>
+        `;
 
-    // 2. Atualiza o GRÁFICO
-    const canvasOrigens = document.getElementById('rankingOrigens');
-    if (canvasOrigens) {
-        const ctx = canvasOrigens.getContext('2d');
-        if (chartRankingOrigens) chartRankingOrigens.destroy();
-        chartRankingOrigens = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ranking.map(r => r.origem),
-                datasets: [{
-                    label: 'Total de respostas',
-                    data: ranking.map(r => r.total_respostas),
-                    backgroundColor: 'rgba(157, 80, 187, 0.6)'
-                }]
+        containerLista.appendChild(linha);
+    });
+
+    const ctx = canvasOrigens.getContext('2d');
+    if (chartRankingOrigens) chartRankingOrigens.destroy();
+
+    chartRankingOrigens = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ranking.map(r => r.origem),
+            datasets: [{
+                label: 'Total de respostas',
+                data: ranking.map(r => r.total_respostas),
+                backgroundColor: 'rgba(157, 80, 187, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 17,
+                            weight: '600'
+                        }
+                    }
+                }
             },
-            options: { responsive: true }
-        });
-    }
+            scales: {
+                x: {
+                    ticks: {
+                        font: {
+                            size: 15
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            size: 15
+                        }
+                    }
+                }
+            }
+        }
+    });
 
-    // 3. (CORREÇÃO) Força a exibição correta (Lista ou Gráfico) após carregar os dados
     mudarVisaoOrigem(visaoAtualOrigem);
 }
 
-// ==========================
-// ATUALIZAÇÃO DA INTERFACE
-// ==========================
-
 export function atualizarRanking() {
-
-    document.getElementById("rankingSkeleton")?.classList.remove("hidden");
-    document.getElementById("rankingTop3")?.classList.add("hidden");
-    document.getElementById("rankingLista")?.classList.add("hidden");
-    document.getElementById("rankingGrafico")?.classList.add("hidden");
-
-    const tipo = document.getElementById('filtroRanking').value;
+    const tipo = document.getElementById('filtroRanking')?.value ?? 'eventos';
     const legenda = document.getElementById('legendaFiltro');
     const btnToggle = document.getElementById('btnToggleRanking');
     const optionsOrigem = document.getElementById('viewOptionsOrigens');
+    const rankingEventos = document.getElementById('rankingEventos');
+    const listaOrigens = document.getElementById('listaRankingOrigens');
+    const graficoOrigens = document.getElementById('rankingOrigens');
 
-    // Esconde APENAS o container de eventos inicialmente
-    document.getElementById('rankingEventos').style.display = 'none';
+    esconderElemento(rankingEventos);
+    esconderElemento(listaOrigens);
+    esconderElemento(graficoOrigens);
+
     if (optionsOrigem) optionsOrigem.style.display = 'none';
 
-    // (CORREÇÃO) Não escondemos rankingOrigens nem listaRankingOrigens aqui.
-    // Deixamos a função carregarRankingOrigens e mudarVisaoOrigem cuidarem disso.
-
     if (tipo === 'eventos') {
-        if (legenda) legenda.innerText = "Exibindo o ranking de participação por cada curso/evento realizado.";
+        if (legenda) {
+            legenda.innerText = 'Exibindo o ranking de participacao por cada curso/evento realizado.';
+        }
 
-        // Mostra eventos e esconde origens
-        document.getElementById('rankingEventos').style.display = 'block';
-        document.getElementById('rankingOrigens')?.classList.add('hidden');
-        document.getElementById('listaRankingOrigens')?.classList.add('hidden');
+        mostrarElemento(rankingEventos);
 
         if (btnToggle) btnToggle.style.display = 'inline-block';
         carregarRankingEventos();
-    } else {
-        // Modo Canais de Entrada
-        if (legenda) legenda.innerHTML = "Baseado em: <strong>'COMO FICOU SABENDO DESTE EVENTO?'</strong>";
-        if (optionsOrigem) optionsOrigem.style.display = 'block';
-        if (btnToggle) btnToggle.style.display = 'inline-block';
-
-        // Carrega os dados (que irá chamar mudarVisaoOrigem no final)
-        carregarRankingOrigens();
+        return;
     }
-    setTimeout(() => {
 
-        document.getElementById("rankingSkeleton")?.classList.add("hidden");
-        document.getElementById("rankingTop3")?.classList.remove("hidden");
-        document.getElementById("rankingLista")?.classList.remove("hidden");
+    if (legenda) {
+        legenda.innerHTML = "Baseado em: <strong>'COMO FICOU SABENDO DESTE EVENTO?'</strong>";
+    }
 
-    }, 300);
-    
+    if (optionsOrigem) optionsOrigem.style.display = 'block';
+    if (btnToggle) btnToggle.style.display = 'inline-block';
+
+    carregarRankingOrigens();
 }
 
-export function renderTop3(dados, tipo) {
-
-    const container = document.getElementById("rankingTop3");
-
-    container.innerHTML = "";
-
-    const top3 = dados.slice(0, 3);
-
-    top3.forEach((item, index) => {
-
-        const nome = tipo === "eventos"
-            ? item.nome_evento
-            : item.origem;
-
-        const card = document.createElement("div");
-
-        card.className = "top3-card";
-
-        card.innerHTML = `
-            <span class="posicao">#${index + 1}</span>
-            <h3>${nome}</h3>
-            <p>${item.total_respostas}</p>
-        `;
-
-        container.appendChild(card);
-
-    });
-
+export function carregarRanking() {
+    atualizarRanking();
 }
 
+export function inicializarRanking() {
+    const filtroAnoRank = document.getElementById('filtroAnoRanking');
+    const filtroRank = document.getElementById('filtroRanking');
 
-export function renderListaRanking(dados, tipo) {
+    if (filtroAnoRank) filtroAnoRank.addEventListener('change', atualizarRanking);
+    if (filtroRank) filtroRank.addEventListener('change', atualizarRanking);
 
-    const lista = document.getElementById("rankingLista");
+    const btnToggle = document.getElementById('btnToggleRanking');
+    if (btnToggle) btnToggle.addEventListener('click', toggleRanking);
 
-    lista.innerHTML = "";
-
-    dados.forEach((item, index) => {
-
-        const nome = tipo === "eventos"
-            ? item.nome_evento
-            : item.origem;
-
-        const div = document.createElement("div");
-
-        div.className = "ranking-item";
-
-        div.innerHTML = `
-            <span>${index + 1}. ${nome}</span>
-            <strong>${item.total_respostas}</strong>
-        `;
-
-        lista.appendChild(div);
-
-    });
-
+    const optionsOrigem = document.getElementById('viewOptionsOrigens');
+    if (optionsOrigem) {
+        optionsOrigem.querySelectorAll('.switch-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                mudarVisaoOrigem(btn.dataset.view, btn);
+            });
+        });
+    }
 }
-

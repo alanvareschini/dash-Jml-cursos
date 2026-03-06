@@ -1,76 +1,59 @@
-const API = "http://localhost:8080/backend/api/";
+import { resolveApiBase } from './apiBase.js';
+
+const API = resolveApiBase();
 const cache = {};
 
-export async function authCheck() {
-    const res = await fetch(`${API}auth_check.php`, {
+async function requestJson(path) {
+    const res = await fetch(`${API}${path}`, {
         credentials: "include"
     });
 
     if (!res.ok) {
-        throw new Error("Erro ao verificar autenticação");
+        throw new Error(`Erro na requisicao: ${path} (${res.status})`);
     }
 
     return res.json();
 }
+
+export async function authCheck() {
+    return requestJson("auth_check.php");
+}
+
 export async function logout() {
     await fetch(`${API}logout.php`, { credentials: "include" });
     window.location.href = "login.html";
 }
 
 export async function getCursos(ano) {
-    const response = await fetch(`${API}get_cursos.php?ano=${ano}`, {
-    credentials: "include"
-});
-    if (!response.ok) throw new Error('Erro ao buscar cursos');
-    return response.json();
+    return requestJson(`get_cursos.php?ano=${ano}`);
 }
 
 export async function getDados(ano, curso) {
-    const response = await fetch(`${API}get_dados.php?ano=${ano}&curso=${encodeURIComponent(curso)}`, {
-        credentials: "include"
-    });
-    if (!response.ok) throw new Error('Erro ao buscar dados do dashboard');
-    return response.json();
+    return requestJson(`get_dados.php?ano=${ano}&curso=${encodeURIComponent(curso)}`);
 }
 
 export async function getRankingEventos(ano) {
-
     const chave = `rankingEventos_${ano}`;
 
-    // verifica se já existe no cache
     if (cache[chave]) {
         return cache[chave];
     }
 
-    const res = await fetch(
-        `${API}get_ranking_eventos.php?ano=${ano}`,
-        { credentials: "include" }
-    );
-
-    const data = await res.json();
-
-    // salva no cache
+    const data = await requestJson(`get_ranking_eventos.php?ano=${ano}`);
     cache[chave] = data;
 
     return data;
 }
 
 export async function getRankingOrigens(ano) {
-
     const chave = `rankingOrigens_${ano}`;
 
     if (cache[chave]) {
         return cache[chave];
     }
 
-    const res = await fetch(
-        `${API}get_ranking_origens.php?ano=${ano}`,
-        { credentials: "include" }
-    );
-
-    const data = await res.json();
-
+    const data = await requestJson(`get_ranking_origens.php?ano=${ano}`);
     cache[chave] = data;
 
     return data;
-}  
+}

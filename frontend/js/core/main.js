@@ -4,20 +4,20 @@ import { atualizarRanking } from '../modules/ranking.js';
 import { toggleRanking, mudarVisaoOrigem } from '../modules/ranking.js';
 import { inicializarControleTipoGrafico } from '../modules/dashboard.js';
 import { initTabs } from "../modules/tabs.js";
-import { logout } from "../services/api.js";
+import { authCheck, logout } from "../services/api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     initTabs();
 });
 
-fetch("http://localhost:8080/backend/api/auth_check.php", {
-    credentials: "include"
-})
-    .then(res => res.json())
+authCheck()
     .then(data => {
         if (!data.authenticated) {
             window.location.href = "login.html";
         }
+    })
+    .catch(() => {
+        window.location.href = "login.html";
     });
 
 window.addEventListener('DOMContentLoaded', () => {
