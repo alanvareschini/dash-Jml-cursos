@@ -18,4 +18,4 @@ RUN chmod +x /usr/local/bin/railway-entrypoint.sh \
     && chown -R www-data:www-data /var/www/html/
 
 EXPOSE 80
-CMD ["/usr/local/bin/railway-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/railway-entrypoint.sh"]
