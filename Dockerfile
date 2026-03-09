@@ -14,7 +14,7 @@ RUN set -eux; \
 COPY frontend/ /var/www/html/
 COPY backend/api/ /var/www/html/api/
 COPY backend/config/ /var/www/html/config/
-COPY docker/railway-entrypoint.sh /usr/local/bin/railway-entrypoint.sh
+COPY backend/railway-entrypoint.sh /usr/local/bin/railway-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/railway-entrypoint.sh \
     && chown -R www-data:www-data /var/www/html/
