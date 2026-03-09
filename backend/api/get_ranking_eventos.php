@@ -1,36 +1,36 @@
 <?php
 header('Content-Type: application/json');
 
-$conn = new mysqli("db", "root", "root", "jml_cursos");
-$conn->set_charset("utf8mb4");
+require_once __DIR__ . '/../config/db.php';
 
 $ano = isset($_GET['ano']) && $_GET['ano'] !== '' ? intval($_GET['ano']) : null;
 
-if ($ano) {
-    $sql = "SELECT nome_evento, SUM(quantidades_respostas) AS total_respostas
-            FROM respostas_origem
-            WHERE ano = ?
-            GROUP BY nome_evento
-            ORDER BY total_respostas DESC";
+try {
+    if ($ano !== null) {
+        $sql = "SELECT nome_evento, SUM(quantidades_respostas) AS total_respostas
+                FROM respostas_origem
+                WHERE ano = ?
+                GROUP BY nome_evento
+                ORDER BY total_respostas DESC";
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $ano);
-    $stmt->execute();
-    $result = $stmt->get_result();
-} else {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$ano]);
+    } else {
 
-    $sql = "SELECT nome_evento, SUM(quantidades_respostas) AS total_respostas
-            FROM respostas_origem
-            GROUP BY nome_evento
-            ORDER BY total_respostas DESC";
+        $sql = "SELECT nome_evento, SUM(quantidades_respostas) AS total_respostas
+                FROM respostas_origem
+                GROUP BY nome_evento
+                ORDER BY total_respostas DESC";
 
-    $result = $conn->query($sql);
+        $stmt = $pdo->query($sql);
+    }
+
+    $ranking = $stmt->fetchAll();
+
+    echo json_encode($ranking);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => $e->getMessage(),
+    ]);
 }
-
-$ranking = [];
-
-while ($row = $result->fetch_assoc()) {
-    $ranking[] = $row;
-}
-
-echo json_encode($ranking);
