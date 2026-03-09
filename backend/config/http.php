@@ -15,6 +15,13 @@ function applyApiCors(): void
     // ALLOWED_ORIGINS=https://frontend1.up.railway.app,https://frontend2.up.railway.app
     $allowedRaw = getenv('ALLOWED_ORIGINS');
     $allowed = array_values(array_filter(array_map('trim', explode(',', (string)$allowedRaw))));
+    if (empty($allowed)) {
+        $allowed = [
+            'https://dash-jml-cursos-production-a76c.up.railway.app',
+            'http://localhost',
+            'http://127.0.0.1',
+        ];
+    }
 
     $allowOrigin = '';
     if ($origin !== '' && filter_var($origin, FILTER_VALIDATE_URL)) {
