@@ -1,6 +1,9 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+require_once __DIR__ . '/../config/http.php';
+applyApiCors();
+startApiSession();
+
+header('Content-Type: application/json; charset=utf-8');
 
 // Limpa variáveis de sessão
 $_SESSION = [];
@@ -11,11 +14,14 @@ if (ini_get("session.use_cookies")) {
     setcookie(
         session_name(),
         '',
-        time() - 42000,
-        $params["path"],
-        $params["domain"],
-        $params["secure"],
-        $params["httponly"]
+        [
+            'expires' => time() - 42000,
+            'path' => $params["path"] ?? '/',
+            'domain' => $params["domain"] ?? '',
+            'secure' => (bool)($params["secure"] ?? false),
+            'httponly' => (bool)($params["httponly"] ?? true),
+            'samesite' => $params["samesite"] ?? 'Lax',
+        ]
     );
 }
 

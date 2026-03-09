@@ -1,6 +1,9 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+require_once __DIR__ . '/../config/http.php';
+applyApiCors();
+startApiSession();
+
+header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['usuario_id'])) {
     http_response_code(401);

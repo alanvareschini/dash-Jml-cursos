@@ -1,5 +1,7 @@
 <?php
-// backend/config/db.php
+require_once __DIR__ . '/http.php';
+applyApiCors();
+
 header('Content-Type: application/json; charset=utf-8');
 ini_set('display_errors', '0');
 
@@ -16,7 +18,6 @@ function envOrDefault(string $key, string $default): string
 
     return $default;
 }
-
 function createPdo(string $host, string $port, string $db, string $user, string $pass, array $options): PDO
 {
     $charset = 'utf8mb4';
@@ -55,3 +56,4 @@ try {
         }
     }
 }
+

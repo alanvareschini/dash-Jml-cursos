@@ -1,10 +1,14 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+require_once __DIR__ . '/../config/http.php';
+applyApiCors();
+startApiSession();
 
-require_once '../config/db.php';
+header('Content-Type: application/json; charset=utf-8');
+
+require_once __DIR__ . '/../config/db.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
+$data = is_array($data) ? $data : [];
 
 $email = $data['email'] ?? '';
 $senha = $data['senha'] ?? '';

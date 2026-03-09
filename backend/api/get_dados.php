@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-require_once '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 
 $ano = isset($_GET['ano']) ? intval($_GET['ano']) : 2024;
 $evento = isset($_GET['curso']) && !empty($_GET['curso']) ? $_GET['curso'] : '';
