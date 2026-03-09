@@ -11,4 +11,8 @@ sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-
 
 apache2ctl -t
 
+if [ "$#" -eq 0 ]; then
+    set -- apache2-foreground
+fi
+
 exec "$@"
