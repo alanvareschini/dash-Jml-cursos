@@ -5,6 +5,8 @@ import { initTabs } from '../modules/tabs.js';
 import { authCheck, logout } from '../services/api.js';
 
 const DASHBOARD_ENTRY_ANIMATION_KEY = 'jml_dashboard_entry_animation';
+const AUTH_PENDING_CLASS = 'auth-pending';
+const AUTH_READY_CLASS = 'auth-ready';
 
 const aplicarAnimacaoEntradaDashboard = () => {
     let deveAnimar = false;
@@ -31,6 +33,39 @@ const aplicarAnimacaoEntradaDashboard = () => {
     window.setTimeout(() => {
         document.body.classList.remove('dashboard-enter', 'dashboard-enter-active');
     }, 620);
+};
+
+const iniciarTelaValidacaoAuth = () => {
+    const gate = document.getElementById('authGate');
+
+    document.body.classList.add(AUTH_PENDING_CLASS);
+    document.body.classList.remove(AUTH_READY_CLASS);
+
+    if (!gate) return;
+
+    gate.setAttribute('aria-hidden', 'false');
+    gate.setAttribute('aria-busy', 'true');
+};
+
+const finalizarTelaValidacaoAuth = () => {
+    const gate = document.getElementById('authGate');
+
+    document.body.classList.remove(AUTH_PENDING_CLASS);
+    document.body.classList.add(AUTH_READY_CLASS);
+
+    if (!gate) return;
+
+    gate.setAttribute('aria-hidden', 'true');
+    gate.setAttribute('aria-busy', 'false');
+};
+
+const validarSessao = async () => {
+    try {
+        const data = await authCheck();
+        return Boolean(data?.authenticated);
+    } catch {
+        return false;
+    }
 };
 
 const atualizarEstadoMenuMobile = (abaAtual = 'home') => {
@@ -189,22 +224,9 @@ const inicializarMenuMobile = () => {
     return { fechar };
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+const inicializarAplicacao = () => {
     initTabs();
     aplicarAnimacaoEntradaDashboard();
-});
-
-authCheck()
-    .then((data) => {
-        if (!data.authenticated) {
-            window.location.href = 'login.html';
-        }
-    })
-    .catch(() => {
-        window.location.href = 'login.html';
-    });
-
-window.addEventListener('DOMContentLoaded', () => {
     abrirAba('home');
     atualizarEstadoMenuMobile('home');
     registrarAberturaPorDataAttr();
@@ -266,5 +288,24 @@ window.addEventListener('DOMContentLoaded', () => {
         .catch((erro) => console.error('Falha ao atualizar ranking:', erro));
 
     Promise.resolve(inicializarControleTipoGrafico())
-        .catch((erro) => console.error('Falha ao inicializar controle de gráfico:', erro));
+        .catch((erro) => console.error('Falha ao inicializar controle de grafico:', erro));
+};
+
+const bootstrap = async () => {
+    iniciarTelaValidacaoAuth();
+
+    const autenticado = await validarSessao();
+    if (!autenticado) {
+        window.location.replace('login.html');
+        return;
+    }
+
+    inicializarAplicacao();
+    requestAnimationFrame(() => {
+        finalizarTelaValidacaoAuth();
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    void bootstrap();
 });

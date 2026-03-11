@@ -29,7 +29,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body class="flex min-h-screen flex-col overflow-x-hidden bg-[#eef2f7] text-slate-900 antialiased">
+<body class="auth-pending flex min-h-screen flex-col overflow-x-hidden bg-[#eef2f7] text-slate-900 antialiased">
+    <div id="authGate" class="auth-gate" aria-live="polite" aria-busy="true" aria-hidden="false">
+        <div class="auth-gate-card">
+            <span class="auth-gate-spinner" aria-hidden="true"></span>
+            <p class="auth-gate-title">Validando acesso</p>
+            <p class="auth-gate-text">Aguarde um instante para carregar o painel.</p>
+        </div>
+    </div>
+
     <header class="sticky top-0 z-50 px-2 pt-2 sm:px-3 sm:pt-3">
         <div class="topbar-shell relative mx-auto flex w-full max-w-[1600px] flex-col gap-3 px-4 py-3 sm:px-6 md:flex-row md:items-center md:gap-4 lg:px-8">
             <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_50%,rgba(200,107,255,0.15),transparent_30%),radial-gradient(circle_at_90%_50%,rgba(53,255,138,0.15),transparent_30%)]"></div>
