@@ -13,8 +13,19 @@ if ($ano !== '') {
             GROUP BY origem
             ORDER BY total_respostas DESC";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$ano]);
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode(['error' => $conn->error]);
+        exit;
+    }
+
+    $anoInt = intval($ano);
+    $stmt->bind_param("i", $anoInt);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $ranking = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    $stmt->close();
 
 } else {
 
@@ -23,9 +34,14 @@ if ($ano !== '') {
             GROUP BY origem
             ORDER BY total_respostas DESC";
 
-    $stmt = $pdo->query($sql);
-}
+    $result = $conn->query($sql);
+    if ($result === false) {
+        http_response_code(500);
+        echo json_encode(['error' => $conn->error]);
+        exit;
+    }
 
-$ranking = $stmt->fetchAll();
+    $ranking = $result->fetch_all(MYSQLI_ASSOC);
+}
 
 echo json_encode($ranking);

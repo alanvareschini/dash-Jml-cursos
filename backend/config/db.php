@@ -7,53 +7,58 @@ ini_set('display_errors', '0');
 
 function envOrDefault(string $key, string $default): string
 {
+    if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
+        return $_ENV[$key];
+    }
+
     $value = getenv($key);
     if ($value !== false && $value !== '') {
         return $value;
     }
 
-    if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
-        return $_ENV[$key];
-    }
-
     return $default;
-}
-function createPdo(string $host, string $port, string $db, string $user, string $pass, array $options): PDO
-{
-    $charset = 'utf8mb4';
-    $dsn = "mysql:host={$host};port={$port};dbname={$db};charset={$charset}";
-    return new PDO($dsn, $user, $pass, $options);
 }
 
 $host = envOrDefault('MYSQLHOST', 'db');
-$db = envOrDefault('MYSQLDATABASE', 'jml_cursos');
 $user = envOrDefault('MYSQLUSER', 'root');
 $pass = envOrDefault('MYSQLPASSWORD', 'root');
-$port = envOrDefault('MYSQLPORT', '3306');
+$db = envOrDefault('MYSQLDATABASE', 'jml_cursos');
+$port = (int) envOrDefault('MYSQLPORT', '3306');
 
-$options = [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-];
+mysqli_report(MYSQLI_REPORT_OFF);
 
-try {
-    $pdo = createPdo($host, $port, $db, $user, $pass, $options);
-} catch (PDOException $ePrimary) {
-    try {
-        // Local fallback when app is running outside Docker network.
-        $pdo = createPdo('localhost', $port, $db, $user, $pass, $options);
-    } catch (PDOException $eLocal) {
-        try {
-            // Common XAMPP fallback: root user with empty password.
-            $pdo = createPdo('localhost', $port, $db, $user, '', $options);
-        } catch (PDOException $eFinal) {
-            http_response_code(500);
-            echo json_encode([
-                'error' => 'Erro na conexao com banco',
-                'details' => $eFinal->getMessage(),
-            ]);
-            exit;
-        }
-    }
+$_ENV['MYSQLHOST'] = $host;
+$_ENV['MYSQLUSER'] = $user;
+$_ENV['MYSQLPASSWORD'] = $pass;
+$_ENV['MYSQLDATABASE'] = $db;
+$_ENV['MYSQLPORT'] = (string) $port;
+
+$conn = @new mysqli(
+    $_ENV['MYSQLHOST'],
+    $_ENV['MYSQLUSER'],
+    $_ENV['MYSQLPASSWORD'],
+    $_ENV['MYSQLDATABASE'],
+    (int) $_ENV['MYSQLPORT']
+);
+
+if ($conn->connect_error) {
+    // Local fallback when app is running outside Docker network.
+    $conn = @new mysqli('localhost', $user, $pass, $db, $port);
 }
+
+if ($conn->connect_error) {
+    // Common XAMPP fallback: root user with empty password.
+    $conn = @new mysqli('localhost', 'root', '', $db, $port);
+}
+
+if ($conn->connect_error) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'Erro na conexao com banco',
+        'details' => $conn->connect_error,
+    ]);
+    exit;
+}
+
+$conn->set_charset('utf8mb4');
 

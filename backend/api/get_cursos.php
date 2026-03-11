@@ -5,16 +5,26 @@ header('Content-Type: application/json');
 $ano = isset($_GET['ano']) ? intval($_GET['ano']) : 2024;
 
 try {
-
     $sql = "SELECT DISTINCT nome_evento
             FROM respostas_origem
             WHERE ano = ?
             ORDER BY nome_evento";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$ano]);
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        throw new Exception($conn->error);
+    }
 
-    $cursos = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $stmt->bind_param("i", $ano);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $cursos = [];
+    while ($row = $result->fetch_assoc()) {
+        $cursos[] = $row['nome_evento'];
+    }
+
+    $stmt->close();
 
     echo json_encode($cursos);
 

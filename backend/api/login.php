@@ -18,10 +18,17 @@ if (!$email || !$senha) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
-$stmt->execute([$email]);
+$stmt = $conn->prepare("SELECT * FROM usuarios WHERE email = ? LIMIT 1");
+if (!$stmt) {
+    echo json_encode(["success" => false]);
+    exit;
+}
 
-$usuario = $stmt->fetch();
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$result = $stmt->get_result();
+$usuario = $result ? $result->fetch_assoc() : null;
+$stmt->close();
 
 if ($usuario) {
     if (password_verify($senha, $usuario['senha'])) {

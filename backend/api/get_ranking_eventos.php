@@ -13,8 +13,16 @@ try {
                 GROUP BY nome_evento
                 ORDER BY total_respostas DESC";
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$ano]);
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new Exception($conn->error);
+        }
+
+        $stmt->bind_param("i", $ano);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $ranking = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+        $stmt->close();
     } else {
 
         $sql = "SELECT nome_evento, SUM(quantidades_respostas) AS total_respostas
@@ -22,10 +30,13 @@ try {
                 GROUP BY nome_evento
                 ORDER BY total_respostas DESC";
 
-        $stmt = $pdo->query($sql);
-    }
+        $result = $conn->query($sql);
+        if ($result === false) {
+            throw new Exception($conn->error);
+        }
 
-    $ranking = $stmt->fetchAll();
+        $ranking = $result->fetch_all(MYSQLI_ASSOC);
+    }
 
     echo json_encode($ranking);
 } catch (Exception $e) {
