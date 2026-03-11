@@ -1,135 +1,145 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>''
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Login | JML Cursos</title>
-    <meta name="description" content="Faça login para acessar o dashboard do JML Cursos">
-
-    <!-- CSS externo -->
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="Fa&ccedil;a login para acessar o dashboard do JML Cursos">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jml: {
+                            purple: '#8b5cf6',
+                            green: '#10b981'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
     <link rel="stylesheet" href="css/login.css">
-
-    <!-- Font Awesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
-<body class="login-page">
-
-    <!-- Estrelas cadentes -->
+<body class="login-page relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
     <div class="shooting-star"></div>
     <div class="shooting-star"></div>
     <div class="shooting-star"></div>
     <div class="shooting-star"></div>
     <div class="shooting-star"></div>
 
-    <!-- Elementos animados do fundo -->
     <div class="floating-circle"></div>
     <div class="waves"></div>
 
-    <main class="login-container">
+    <div class="login-viewport flex min-h-[calc(100vh-3rem)] items-center justify-center">
+        <main class="login-container relative z-10 w-full max-w-5xl overflow-hidden rounded-[30px] border border-white/20 bg-white/95 shadow-[0_28px_80px_rgba(2,6,23,0.35)] backdrop-blur-2xl">
+            <div class="login-grid grid min-h-[620px] lg:grid-cols-[1.02fr_1fr]">
+                <section class="login-aside relative hidden p-10 lg:flex lg:flex-col lg:justify-between">
+                    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(200,107,255,0.2),transparent_40%),radial-gradient(circle_at_90%_80%,rgba(53,255,138,0.18),transparent_40%)]"></div>
+                    <div class="relative z-10">
+                        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-white/65">JML Cursos</p>
+                        <h2 class="mt-4 max-w-sm text-4xl font-extrabold leading-tight text-white">Painel de Indicadores com decisões mais r&aacute;pidas.</h2>
+                        <p class="mt-4 max-w-md text-sm leading-7 text-slate-200/85">Acesse sua conta para acompanhar Dashboard e Ranking.</p>
+                    </div>
+                    <div class="relative z-10 space-y-3">
+                        <div class="login-aside-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Leitura de performance em segundos</span>
+                        </div>
+                        <div class="login-aside-item">
+                            <i class="fas fa-filter"></i>
+                            <span>Filtros por ano e curso com atualiza&ccedil;&atilde;o din&acirc;mica</span>
+                        </div>
+                        <div class="login-aside-item">
+                            <i class="fas fa-ranking-star"></i>
+                            <span>Ranking de eventos e canais.</span>
+                        </div>
+                    </div>
+                </section>
 
-        <div class="login-header">
-           <img src="img-logo/image.png" alt="JML Cursos">
-            <h1 class="login-title">Bem-vindo de volta!</h1>
-            <p class="login-subtitle">Faça login para acessar sua conta</p>
-        </div>
+                <section class="login-panel px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-11">
+                    <div class="login-header mb-8 text-center lg:text-left">
+                        <img src="img-logo/image-removebg-preview (1).png" alt="JML Cursos" class="mx-auto h-auto w-full max-w-[180px] object-contain lg:mx-0">
+                        <h1 class="login-title mt-6 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-[2rem]">Entrar no painel</h1>
+                        <span class="mx-auto mt-3 block h-1.5 w-24 rounded-full bg-[linear-gradient(90deg,#8b5cf6,#10b981)] lg:mx-0"></span>
+                        <p class="login-subtitle mt-4 text-sm leading-6 text-slate-500 sm:text-base">Use suas credenciais para continuar.</p>
+                    </div>
 
-        <!-- Alertas com ícones -->
-        <div class="login-alert" id="loginAlert" role="alert" hidden>
-            <i class="fas fa-exclamation-circle alert-icon"></i>
-            <span class="alert-message"></span>
-        </div>
+                    <div class="login-alert hidden rounded-2xl border border-red-100 bg-red-50/90 px-4 py-3 text-sm text-red-600 shadow-sm" id="loginAlert" role="alert" hidden>
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-exclamation-circle alert-icon mt-0.5"></i>
+                            <span class="alert-message"></span>
+                        </div>
+                    </div>
 
-        <form id="formLogin" class="login-form" method="POST" action="/api/login.php"
->
-            <div class="form-group">
-                <label for="email" class="form-label">
-                    <i class="fas fa-envelope"></i>
-                    E-mail
-                </label>
-                <div class="input-container">
-                    <input type="email" id="email" name="email" class="form-input" placeholder="seu@email.com" required
-                        autocomplete="email" autofocus>
-                </div>
+                    <form id="formLogin" class="login-form flex flex-col gap-5" method="POST" action="/api/login.php">
+                        <div class="form-group flex flex-col gap-2">
+                            <label for="email" class="form-label text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                                <i class="fas fa-envelope mr-2 text-jml-purple"></i>
+                                E-mail
+                            </label>
+                            <div class="input-container relative flex items-center">
+                                <input type="email" id="email" name="email" class="form-input w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-jml-purple focus:bg-white focus:ring-4 focus:ring-violet-100" placeholder="seu@email.com" required autocomplete="email" autofocus>
+                            </div>
+                        </div>
+
+                        <div class="form-group flex flex-col gap-2">
+                            <label for="senha" class="form-label text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                                <i class="fas fa-lock mr-2 text-jml-purple"></i>
+                                Senha
+                            </label>
+                            <div class="input-container relative flex items-center">
+                                <input type="password" id="senha" name="senha" class="form-input w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 py-3.5 pr-12 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-jml-purple focus:bg-white focus:ring-4 focus:ring-violet-100" placeholder="********" required autocomplete="current-password" minlength="6">
+                                <button type="button" class="password-toggle absolute right-3 inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600" id="toggleSenha" aria-label="Mostrar ou ocultar senha">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-options flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
+                            <label class="checkbox-label inline-flex items-center gap-3 text-sm text-slate-500">
+                                <input type="checkbox" name="lembrar" id="lembrar" class="h-4 w-4 rounded border-slate-300 text-jml-purple focus:ring-jml-purple">
+                                <span class="checkbox-text">Lembrar meu acesso</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn-login mt-2 inline-flex w-full items-center justify-center gap-3 rounded-full bg-[linear-gradient(135deg,#8b5cf6_0%,#10b981_100%)] px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_10px_24px_rgba(139,92,246,0.28)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(16,185,129,0.3)] focus:outline-none focus:ring-4 focus:ring-violet-200" id="btnLogin">
+                            <span class="btn-login-text">Entrar no sistema</span>
+                            <i class="btn-login-icon fas fa-arrow-right"></i>
+                        </button>
+                    </form>
+
+                    <footer class="login-footer mt-8 border-t border-violet-100 pt-5 text-center lg:text-left">
+                        <p class="text-sm text-slate-400">&copy; 2026 JML Cursos. Todos os direitos reservados.</p>
+                    </footer>
+                </section>
             </div>
+        </main>
+    </div>
 
-            <div class="form-group">
-                <label for="senha" class="form-label">
-                    <i class="fas fa-lock"></i>
-                    Senha
-                </label>
-                <div class="input-container">
-                    <input type="password" id="senha" name="senha" class="form-input" placeholder="••••••••" required
-                        autocomplete="current-password" minlength="6">
-                    <button type="button" class="password-toggle" id="toggleSenha">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-options">
-                <label class="checkbox-label">
-                    <input type="checkbox" name="lembrar" id="lembrar">
-                    <span class="checkbox-text">Lembrar meu acesso</span>
-                </label>
-
-
-            </div>
-
-            <button type="submit" class="btn-login" id="btnLogin">
-                <span>Entrar no sistema</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
-
-
-
-
-        </form>
-
-        <footer class="login-footer">
-            <p>&copy; 2024 JML Cursos. Todos os direitos reservados.</p>
-        </footer>
-
-    </main>
-
-    <!-- Scripts -->
     <script type="module" src="js/modules/login.js"></script>
     <script>
-        // Função para mostrar/esconder senha
-        // CORREÇÃO: Inverter a lógica do olho
         document.getElementById('toggleSenha')?.addEventListener('click', function () {
             const senhaInput = document.getElementById('senha');
             const icon = this.querySelector('i');
 
             if (senhaInput.type === 'password') {
                 senhaInput.type = 'text';
-                icon.classList.remove('fa-eye-slash'); // ANTES: fa-eye
-                icon.classList.add('fa-eye'); // ANTES: fa-eye-slash
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             } else {
                 senhaInput.type = 'password';
-                icon.classList.remove('fa-eye'); // ANTES: fa-eye-slash
-                icon.classList.add('fa-eye-slash'); // ANTES: fa-eye
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
             }
         });
 
-        // Animação do botão de login
-        document.getElementById('formLogin')?.addEventListener('submit', function (e) {
-            const btnLogin = document.getElementById('btnLogin');
-            btnLogin.classList.add('loading');
-
-            // Simulação (remover isso quando integrado com PHP)
-            setTimeout(() => {
-                btnLogin.classList.remove('loading');
-            }, 2000);
-        });
-
-        // Validação em tempo real
         document.getElementById('email')?.addEventListener('input', function () {
             if (this.validity.valid) {
                 this.style.borderColor = '#10b981';

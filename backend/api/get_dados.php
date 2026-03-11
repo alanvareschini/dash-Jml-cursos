@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../config/db.php';
 
@@ -7,7 +7,7 @@ $ano = isset($_GET['ano']) ? intval($_GET['ano']) : 2024;
 $evento = isset($_GET['curso']) && !empty($_GET['curso']) ? $_GET['curso'] : '';
 
 if (empty($evento)) {
-    echo json_encode(["error" => "O parametro 'curso' e obrigatorio."]);
+    echo json_encode(["error" => "O parâmetro 'curso' é obrigatório."]);
     exit;
 }
 

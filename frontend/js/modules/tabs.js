@@ -27,22 +27,26 @@ export function initTabs() {
 
     const tabs = document.querySelectorAll(".tab-button");
     const tabsContainer = document.querySelector(".tabs-container");
+    const tabsList = document.querySelector(".tabs-list");
+    const indicador = document.querySelector(".tab-indicator");
 
-    if (!tabsContainer || tabs.length === 0) return;
+    if (!tabsContainer || !tabsList || tabs.length === 0) return;
 
     function updateIndicator(tab) {
         const rect = tab.getBoundingClientRect();
-        const containerRect = tabsContainer.getBoundingClientRect();
+        const containerRect = tabsList.getBoundingClientRect();
 
-        tabsContainer.style.setProperty(
-            "--indicator-left",
-            rect.left - containerRect.left + "px"
-        );
+        if (indicador) {
+            indicador.style.setProperty(
+                "--indicator-left",
+                rect.left - containerRect.left + "px"
+            );
 
-        tabsContainer.style.setProperty(
-            "--indicator-width",
-            rect.width + "px"
-        );
+            indicador.style.setProperty(
+                "--indicator-width",
+                rect.width + "px"
+            );
+        }
     }
 
     tabs.forEach(tab => {
@@ -57,4 +61,9 @@ export function initTabs() {
 
     const activeTab = document.querySelector(".tab-button.active");
     if (activeTab) updateIndicator(activeTab);
+
+    window.addEventListener('resize', () => {
+        const atual = document.querySelector(".tab-button.active");
+        if (atual) updateIndicator(atual);
+    });
 }

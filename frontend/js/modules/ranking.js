@@ -3,6 +3,15 @@ import { state } from '../core/state.js';
 
 let chartRankingOrigens = null;
 let visaoAtualOrigem = 'lista';
+let rankingOrigensAtual = [];
+let tipoRankingAtual = 'eventos';
+
+function obterContainersRankingOrigem() {
+    return {
+        lista: document.getElementById('listaRankingOrigens'),
+        grafico: document.getElementById('rankingOrigens')
+    };
+}
 
 function mostrarElemento(el) {
     if (!el) return;
@@ -24,160 +33,21 @@ function atualizarBotoesVisaoOrigem(tipoVisao) {
     });
 }
 
-export function mudarVisaoOrigem(tipoVisao, elemento) {
-    visaoAtualOrigem = tipoVisao;
+function destruirGraficoOrigens() {
+    if (!chartRankingOrigens) return;
 
-    const lista = document.getElementById('listaRankingOrigens');
-    const grafico = document.getElementById('rankingOrigens');
-
-    if (!lista || !grafico) return;
-
-    if (elemento) {
-        const grupo = elemento.parentElement;
-        grupo?.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
-        elemento.classList.add('active');
-    } else {
-        atualizarBotoesVisaoOrigem(tipoVisao);
-    }
-
-    if (tipoVisao === 'lista') {
-        mostrarElemento(lista);
-        esconderElemento(grafico);
-        return;
-    }
-
-    esconderElemento(lista);
-    mostrarElemento(grafico);
-
-    setTimeout(() => {
-        if (chartRankingOrigens) chartRankingOrigens.resize();
-    }, 100);
+    chartRankingOrigens.destroy();
+    chartRankingOrigens = null;
 }
 
-export function toggleRanking() {
-    state.mostrarTodosRanking = !state.mostrarTodosRanking;
-    const botao = document.getElementById('btnToggleRanking');
+function renderizarGraficoOrigens(ranking) {
+    const { grafico } = obterContainersRankingOrigem();
+    if (!grafico || !ranking.length) return;
 
-    if (botao) {
-        botao.classList.toggle('active', state.mostrarTodosRanking);
-        botao.innerText = state.mostrarTodosRanking
-            ? 'Mostrar apenas Top 5'
-            : 'Mostrar todos';
-    }
+    const ctx = grafico.getContext('2d');
+    if (!ctx) return;
 
-    atualizarRanking();
-}
-
-export async function carregarRankingEventos() {
-    const ano = document.getElementById('filtroAnoRanking')?.value ?? '';
-    const botao = document.getElementById('btnToggleRanking');
-    const container = document.getElementById('rankingEventos');
-
-    if (!container) return;
-
-    container.innerHTML = '<div class="loader"></div>';
-    mostrarElemento(container);
-
-    let ranking = [];
-    try {
-        ranking = await getRankingEventos(ano);
-    } catch (error) {
-        console.error('Erro ao carregar ranking de eventos:', error);
-        container.innerHTML = '<p class="placeholder">Nao foi possivel carregar o ranking de eventos.</p>';
-        return;
-    }
-
-    const totalEventosAno = ranking.length;
-
-    if (ano === '2023' || ano === '2024') {
-        state.mostrarTodosRanking = true;
-        if (botao) botao.style.display = 'none';
-    } else if (!state.mostrarTodosRanking) {
-        ranking = ranking.slice(0, 5);
-    }
-
-    container.innerHTML = '';
-
-    ranking.forEach((item, index) => {
-        const medalha = `${index + 1}o`;
-
-        const linha = document.createElement('div');
-        linha.classList.add('ranking-item');
-        if (index === 0) linha.classList.add('podio-ouro');
-        if (index === 1) linha.classList.add('podio-prata');
-        if (index === 2) linha.classList.add('podio-bronze');
-        linha.setAttribute('data-label', `Quantidade de respostas por evento: ${item.total_respostas}`);
-
-        linha.innerHTML = `
-            <div class="ranking-linha">
-                <span class="ranking-posicao">${medalha}</span>
-                <span class="ranking-nome" title="${item.nome_evento}">${item.nome_evento}</span>
-            </div>
-            <span class="ranking-total">${item.total_respostas}</span>
-        `;
-
-        container.appendChild(linha);
-    });
-
-    const titulo = document.createElement('div');
-    titulo.style.marginBottom = '10px';
-    titulo.style.fontWeight = '600';
-    titulo.textContent = `Total de eventos em ${ano || 'Todos os anos'}: ${totalEventosAno}`;
-
-    container.prepend(titulo);
-}
-
-export async function carregarRankingOrigens() {
-    const ano = document.getElementById('filtroAnoRanking')?.value ?? '';
-    const containerEventos = document.getElementById('rankingEventos');
-    const containerLista = document.getElementById('listaRankingOrigens');
-    const canvasOrigens = document.getElementById('rankingOrigens');
-
-    if (!containerLista || !canvasOrigens) return;
-
-    esconderElemento(containerEventos);
-    containerLista.innerHTML = '<div class="loader"></div>';
-
-    let ranking = [];
-    try {
-        ranking = await getRankingOrigens(ano);
-    } catch (error) {
-        console.error('Erro ao carregar ranking de origens:', error);
-        containerLista.innerHTML = '<p class="placeholder">Nao foi possivel carregar o ranking de origens.</p>';
-        mudarVisaoOrigem('lista');
-        return;
-    }
-
-    if (!state.mostrarTodosRanking) {
-        ranking = ranking.slice(0, 5);
-    }
-
-    containerLista.innerHTML = '';
-
-    ranking.forEach((item, index) => {
-        const medalha = `${index + 1}o`;
-
-        const linha = document.createElement('div');
-        linha.classList.add('ranking-item');
-        if (index === 0) linha.classList.add('podio-ouro');
-        if (index === 1) linha.classList.add('podio-prata');
-        if (index === 2) linha.classList.add('podio-bronze');
-        linha.setAttribute('data-label', `Quantidade de respostas por origem: ${item.total_respostas}`);
-
-        linha.innerHTML = `
-            <div class="ranking-linha">
-                <span class="ranking-posicao">${medalha}</span>
-                <span class="ranking-nome">${item.origem}</span>
-            </div>
-            <span class="ranking-total">${item.total_respostas}</span>
-        `;
-
-        containerLista.appendChild(linha);
-    });
-
-    const ctx = canvasOrigens.getContext('2d');
-    if (chartRankingOrigens) chartRankingOrigens.destroy();
-
+    destruirGraficoOrigens();
     chartRankingOrigens = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -220,8 +90,301 @@ export async function carregarRankingOrigens() {
             }
         }
     });
+}
 
-    mudarVisaoOrigem(visaoAtualOrigem);
+export function mudarVisao(tipoVisao, elemento) {
+    const visaoNormalizada = tipoVisao === 'grafico' ? 'grafico' : 'lista';
+    visaoAtualOrigem = visaoNormalizada;
+
+    const { lista, grafico } = obterContainersRankingOrigem();
+    if (!lista || !grafico) return;
+
+    atualizarBotoesVisaoOrigem(visaoNormalizada);
+
+    if (elemento) {
+        const grupo = elemento.parentElement;
+        grupo?.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
+        elemento.classList.add('active');
+    }
+
+    if (visaoNormalizada === 'lista') {
+        mostrarElemento(lista);
+        esconderElemento(grafico);
+        destruirGraficoOrigens();
+        return;
+    }
+
+    esconderElemento(lista);
+    mostrarElemento(grafico);
+
+    if (!chartRankingOrigens && rankingOrigensAtual.length > 0) {
+        renderizarGraficoOrigens(rankingOrigensAtual);
+    }
+
+    setTimeout(() => {
+        if (chartRankingOrigens) chartRankingOrigens.resize();
+    }, 100);
+}
+
+export function mudarVisaoOrigem(tipoVisao, elemento) {
+    mudarVisao(tipoVisao, elemento);
+}
+
+function resetarVisaoOrigem() {
+    visaoAtualOrigem = 'lista';
+    mudarVisao('lista');
+}
+
+function formatarTotalRespostas(valor) {
+    const numero = Number(valor);
+    if (!Number.isFinite(numero)) return String(valor ?? 0);
+    return new Intl.NumberFormat('pt-BR').format(numero);
+}
+
+function obterElementoResumoTotalRanking() {
+    return document.getElementById('rankingTotalRespostas');
+}
+
+function calcularTotalRespostasRanking(ranking = []) {
+    return ranking.reduce((acumulado, item) => {
+        const valor = Number(item?.total_respostas ?? 0);
+        return acumulado + (Number.isFinite(valor) ? valor : 0);
+    }, 0);
+}
+
+function montarTextoResumoTotalRanking(tipo, ano, totalRespostas) {
+    const periodo = ano ? `em ${ano}` : 'em todos os anos';
+    const totalFormatado = formatarTotalRespostas(totalRespostas);
+
+    if (tipo === 'origens') {
+        return `Total de respostas por origem ${periodo}: ${totalFormatado}`;
+    }
+
+    return `Total de respostas ${periodo}: ${totalFormatado}`;
+}
+
+function atualizarResumoTotalRanking(tipo, ano, ranking) {
+    const resumo = obterElementoResumoTotalRanking();
+    if (!resumo) return;
+
+    const totalRespostas = calcularTotalRespostasRanking(ranking);
+    resumo.textContent = montarTextoResumoTotalRanking(tipo, ano, totalRespostas);
+    resumo.classList.remove('hidden');
+}
+
+function ocultarResumoTotalRanking() {
+    const resumo = obterElementoResumoTotalRanking();
+    if (!resumo) return;
+    resumo.classList.add('hidden');
+}
+
+function escaparAtributoHtml(valor = '') {
+    return String(valor)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function montarNomeRanking(nome, limiteTooltip = 44) {
+    const nomeTexto = String(nome ?? '').trim();
+    const nomeEscapado = escaparAtributoHtml(nomeTexto);
+    return `<span class="ranking-nome">${nomeEscapado}</span>`;
+}
+
+function montarBlocoTotalRespostas(valor, contexto = 'evento') {
+    const valorFormatado = formatarTotalRespostas(valor);
+    return `
+        <span class="ranking-total">
+            <span class="ranking-total-value">${valorFormatado}</span>
+        </span>
+    `;
+}
+
+function montarTextoTooltipCard(valor, contexto = 'evento') {
+    const valorFormatado = formatarTotalRespostas(valor);
+    return contexto === 'canal'
+        ? `Respostas totais deste canal: ${valorFormatado}`
+        : `Respostas totais deste evento: ${valorFormatado}`;
+}
+
+function ativarHoverEleganteRanking(container) {
+    if (!container) return;
+
+    container.querySelectorAll('.ranking-item').forEach((card) => {
+        if (card.dataset.hoverEleganteAtivo === '1') return;
+
+        card.addEventListener('pointermove', (event) => {
+            const area = card.getBoundingClientRect();
+            if (!area.width || !area.height) return;
+
+            const x = ((event.clientX - area.left) / area.width) * 100;
+            const y = ((event.clientY - area.top) / area.height) * 100;
+
+            const xLimitado = Math.max(0, Math.min(100, x)).toFixed(2);
+            const yLimitado = Math.max(0, Math.min(100, y)).toFixed(2);
+
+            card.style.setProperty('--mx', `${xLimitado}%`);
+            card.style.setProperty('--my', `${yLimitado}%`);
+
+            // Smart tooltip positioning to avoid clipping/overlap near card edges.
+            const espacoDireita = area.right - event.clientX;
+            const espacoTopo = event.clientY - area.top;
+            card.dataset.tooltipAlign = espacoDireita < 240 ? 'left' : 'right';
+            card.dataset.tooltipPos = espacoTopo < 56 ? 'below' : 'above';
+        });
+
+        card.addEventListener('pointerleave', () => {
+            card.style.removeProperty('--mx');
+            card.style.removeProperty('--my');
+            delete card.dataset.tooltipAlign;
+            delete card.dataset.tooltipPos;
+        });
+
+        card.dataset.hoverEleganteAtivo = '1';
+    });
+}
+
+function renderizarListaOrigens(ranking) {
+    const { lista } = obterContainersRankingOrigem();
+    if (!lista) return;
+
+    lista.innerHTML = '';
+
+    ranking.forEach((item, index) => {
+        const medalha = `${index + 1}o`;
+
+        const linha = document.createElement('div');
+        linha.classList.add('ranking-item');
+        if (index === 0) linha.classList.add('podio-ouro');
+        if (index === 1) linha.classList.add('podio-prata');
+        if (index === 2) linha.classList.add('podio-bronze');
+        linha.style.animationDelay = `${Math.min(index * 0.04, 0.2)}s`;
+        const tooltipCard = montarTextoTooltipCard(item.total_respostas, 'canal');
+        linha.setAttribute('data-label', `Quantidade de respostas por origem: ${item.total_respostas}`);
+        linha.setAttribute('aria-label', tooltipCard);
+
+        linha.innerHTML = `
+            <div class="ranking-linha">
+                <span class="ranking-posicao">${medalha}</span>
+                ${montarNomeRanking(item.origem, 36)}
+            </div>
+            ${montarBlocoTotalRespostas(item.total_respostas, 'canal')}
+            <span class="ranking-card-tooltip" role="tooltip" aria-hidden="true">${escaparAtributoHtml(tooltipCard)}</span>
+        `;
+
+        lista.appendChild(linha);
+    });
+
+    ativarHoverEleganteRanking(lista);
+}
+
+export function toggleRanking() {
+    state.mostrarTodosRanking = !state.mostrarTodosRanking;
+    const botao = document.getElementById('btnToggleRanking');
+
+    if (botao) {
+        botao.classList.toggle('active', state.mostrarTodosRanking);
+        botao.innerText = state.mostrarTodosRanking
+            ? 'Mostrar apenas Top 5'
+            : 'Mostrar todos';
+    }
+
+    atualizarRanking();
+}
+
+export async function carregarRankingEventos() {
+    const ano = document.getElementById('filtroAnoRanking')?.value ?? '';
+    const botao = document.getElementById('btnToggleRanking');
+    const container = document.getElementById('rankingEventos');
+
+    if (!container) return;
+
+    container.innerHTML = '<div class="loader"></div>';
+    mostrarElemento(container);
+
+    let ranking = [];
+    try {
+        ranking = await getRankingEventos(ano);
+    } catch (error) {
+        console.error('Erro ao carregar ranking de eventos:', error);
+        container.innerHTML = '<p class="placeholder">Não foi possível carregar o ranking de eventos.</p>';
+        ocultarResumoTotalRanking();
+        return;
+    }
+
+    if (ano === '2023' || ano === '2024') {
+        state.mostrarTodosRanking = true;
+        if (botao) botao.style.display = 'none';
+    } else if (!state.mostrarTodosRanking) {
+        ranking = ranking.slice(0, 5);
+    }
+
+    atualizarResumoTotalRanking('eventos', ano, ranking);
+    container.innerHTML = '';
+
+    ranking.forEach((item, index) => {
+        const medalha = `${index + 1}o`;
+
+        const linha = document.createElement('div');
+        linha.classList.add('ranking-item');
+        if (index === 0) linha.classList.add('podio-ouro');
+        if (index === 1) linha.classList.add('podio-prata');
+        if (index === 2) linha.classList.add('podio-bronze');
+        linha.style.animationDelay = `${Math.min(index * 0.04, 0.2)}s`;
+        const tooltipCard = montarTextoTooltipCard(item.total_respostas, 'evento');
+        linha.setAttribute('data-label', `Quantidade de respostas por evento: ${item.total_respostas}`);
+        linha.setAttribute('aria-label', tooltipCard);
+
+        linha.innerHTML = `
+            <div class="ranking-linha">
+                <span class="ranking-posicao">${medalha}</span>
+                ${montarNomeRanking(item.nome_evento)}
+            </div>
+            ${montarBlocoTotalRespostas(item.total_respostas, 'evento')}
+            <span class="ranking-card-tooltip" role="tooltip" aria-hidden="true">${escaparAtributoHtml(tooltipCard)}</span>
+        `;
+
+        container.appendChild(linha);
+    });
+
+    ativarHoverEleganteRanking(container);
+}
+
+export async function carregarRankingOrigens() {
+    const ano = document.getElementById('filtroAnoRanking')?.value ?? '';
+    const containerEventos = document.getElementById('rankingEventos');
+    const { lista: containerLista, grafico: canvasOrigens } = obterContainersRankingOrigem();
+
+    if (!containerLista || !canvasOrigens) return;
+
+    esconderElemento(containerEventos);
+    mostrarElemento(containerLista);
+    esconderElemento(canvasOrigens);
+    destruirGraficoOrigens();
+    ocultarResumoTotalRanking();
+    containerLista.innerHTML = '<div class="loader"></div>';
+
+    let ranking = [];
+    try {
+        ranking = await getRankingOrigens(ano);
+    } catch (error) {
+        console.error('Erro ao carregar ranking de origens:', error);
+        containerLista.innerHTML = '<p class="placeholder">Não foi possível carregar o ranking de origens.</p>';
+        ocultarResumoTotalRanking();
+        mudarVisaoOrigem('lista');
+        return;
+    }
+
+    if (!state.mostrarTodosRanking) {
+        ranking = ranking.slice(0, 5);
+    }
+
+    atualizarResumoTotalRanking('origens', ano, ranking);
+
+    rankingOrigensAtual = ranking;
+    renderizarListaOrigens(ranking);
+    mudarVisao(visaoAtualOrigem);
 }
 
 export function atualizarRanking() {
@@ -236,17 +399,19 @@ export function atualizarRanking() {
     esconderElemento(rankingEventos);
     esconderElemento(listaOrigens);
     esconderElemento(graficoOrigens);
-
+    destruirGraficoOrigens();
+    ocultarResumoTotalRanking();
     if (optionsOrigem) optionsOrigem.style.display = 'none';
 
     if (tipo === 'eventos') {
+        tipoRankingAtual = 'eventos';
         if (legenda) {
-            legenda.innerText = 'Exibindo o ranking de participacao por cada curso/evento realizado.';
+            legenda.innerText = 'Exibindo o ranking de participação por cada curso/evento realizado.';
         }
 
         mostrarElemento(rankingEventos);
 
-        if (btnToggle) btnToggle.style.display = 'inline-block';
+        if (btnToggle) btnToggle.style.display = 'inline-flex';
         carregarRankingEventos();
         return;
     }
@@ -255,8 +420,13 @@ export function atualizarRanking() {
         legenda.innerHTML = "Baseado em: <strong>'COMO FICOU SABENDO DESTE EVENTO?'</strong>";
     }
 
-    if (optionsOrigem) optionsOrigem.style.display = 'block';
-    if (btnToggle) btnToggle.style.display = 'inline-block';
+    if (tipoRankingAtual !== 'origens') {
+        resetarVisaoOrigem();
+    }
+    tipoRankingAtual = 'origens';
+
+    if (optionsOrigem) optionsOrigem.style.display = 'inline-flex';
+    if (btnToggle) btnToggle.style.display = 'inline-flex';
 
     carregarRankingOrigens();
 }
@@ -284,3 +454,6 @@ export function inicializarRanking() {
         });
     }
 }
+
+
+

@@ -1,147 +1,340 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard JML Cursos</title>
-    <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/pages.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jml: {
+                            purple: '#9d50bb',
+                            green: '#35ff8a',
+                            dark: '#0f1423'
+                        }
+                    },
+                    boxShadow: {
+                        shell: '0 8px 40px rgba(0, 0, 0, 0.06)'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body>
+<body class="flex min-h-screen flex-col overflow-x-hidden bg-[#eef2f7] text-slate-900 antialiased">
+    <header class="sticky top-0 z-50 px-2 pt-2 sm:px-3 sm:pt-3">
+        <div class="topbar-shell relative mx-auto flex w-full max-w-[1600px] flex-col gap-3 px-4 py-3 sm:px-6 md:flex-row md:items-center md:gap-4 lg:px-8">
+            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_50%,rgba(200,107,255,0.15),transparent_30%),radial-gradient(circle_at_90%_50%,rgba(53,255,138,0.15),transparent_30%)]"></div>
+            <div class="pointer-events-none absolute bottom-0 left-0 h-[2px] w-full bg-[linear-gradient(90deg,transparent,#9d50bb,#35ff8a,transparent)] opacity-70"></div>
 
-    <header>
-        <div class="header-left">
-            <div class="logo-container">
-                <img src="img-logo/simbolo_grupo_jml.png.webp" alt="JML Cursos" class="logo">
+            <div class="header-left relative z-10 shrink-0">
+                <button type="button" data-abrir-aba="home" class="header-brand flex min-w-0 items-center gap-3 rounded-2xl px-1.5 py-1 text-left">
+                    <div class="logo-container flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 p-2">
+                        <img src="img-logo/simbolo_grupo_jml.png.webp" alt="JML Cursos" class="logo h-full w-full object-contain">
+                    </div>
+                    <div class="min-w-0">
+                        <p class="mb-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-white/55">JML Cursos</p>
+                        <h1 class="truncate text-sm font-semibold uppercase tracking-[0.2em] text-white sm:text-base">Painel de Indicadores JML</h1>
+                    </div>
+                </button>
             </div>
-            <h1>Painel de Indicadores JML</h1>
-        </div>
 
-        <nav class="tabs-container">
-            <ul class="tabs-list">
-                <li>
-                    <button id="btn-home" class="tab-button active">
-                        <i class="fa-solid fa-house"></i> Home
-                    </button>
-                </li>
+            <nav class="tabs-container desktop-navbar relative z-10 w-full md:ml-auto md:w-auto md:px-0">
+                <ul class="tabs-list relative grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-white/5 p-1 text-center md:mx-auto md:inline-flex md:items-center md:gap-1 md:rounded-2xl md:border md:border-white/[0.12] md:bg-white/[0.08] md:p-1">
+                    <li>
+                        <button id="btn-home" class="tab-button active flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white transition hover:text-white md:px-4 md:py-2.5 md:text-[0.95rem]">
+                            <i class="fa-solid fa-house text-xs sm:text-sm"></i>
+                            <span>Home</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="btn-dashboard" class="tab-button flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/70 transition hover:text-white md:px-4 md:py-2.5 md:text-[0.95rem]">
+                            <i class="fa-solid fa-chart-line text-xs sm:text-sm"></i>
+                            <span>Dashboard</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="btn-ranking" class="tab-button flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/70 transition hover:text-white md:px-4 md:py-2.5 md:text-[0.95rem]">
+                            <i class="fa-solid fa-trophy text-xs sm:text-sm"></i>
+                            <span>Ranking</span>
+                        </button>
+                    </li>
+                    <span class="tab-indicator"></span>
+                </ul>
+            </nav>
 
-                <li>
-                    <button id="btn-dashboard" class="tab-button">
-                        <i class="fa-solid fa-chart-line"></i> Dashboard
-                    </button>
-                </li>
-
-                <li>
-                    <button id="btn-ranking" class="tab-button">
-                        <i class="fa-solid fa-trophy"></i> Ranking
-                    </button>
-                </li>
-                <span class="tab-indicator"></span>
-            </ul>
-        </nav>
-
-        <div class="header-right">
-            <div class="dropdown">
-                <span class="badge dropdown-toggle">Olá, Admin</span>
-                <div class="dropdown-menu">
-                    <button id="btnLogout" class="dropdown-item">Sair</button>
+            <div class="header-right desktop-userbar relative z-10 shrink-0 items-center justify-end">
+                <div class="dropdown group relative pb-2">
+                    <span class="badge dropdown-toggle inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold tracking-[0.03em] text-white transition hover:-translate-y-0.5">
+                        <span>Ol&aacute;, Admin</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] opacity-80"></i>
+                    </span>
+                    <div class="dropdown-menu invisible absolute right-0 top-[calc(100%-2px)] z-20 min-w-[140px] rounded-xl border border-slate-200 bg-white p-1 opacity-0 shadow-lg transition duration-200 group-hover:visible group-hover:opacity-100">
+                        <button id="btnLogout" data-logout class="dropdown-item w-full rounded-lg px-4 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-red-500">Sair</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
+            <div class="mobile-nav mobile-nav-bar relative z-20 w-full items-center justify-between">
+                <span class="mobile-user-pill inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90">
+                    <i class="fa-solid fa-user-shield text-[11px]"></i>
+                    <span>Ol&aacute;, Admin</span>
+                </span>
+                <button id="btnMobileMenu" type="button" aria-label="Abrir menu" aria-controls="mobileMenuPanel" aria-expanded="false" class="mobile-menu-trigger inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-white shadow-sm transition">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+            </div>
+
+            <div id="mobileMenuPanel" class="mobile-menu-panel mobile-menu-mobile" aria-hidden="true">
+                <button type="button" class="mobile-menu-backdrop" data-mobile-close aria-label="Fechar menu"></button>
+                <aside class="mobile-menu-sheet" role="dialog" aria-modal="true" aria-label="Menu de navega&ccedil;&atilde;o">
+                    <div class="mobile-menu-header">
+                        <div class="mobile-menu-brand">
+                            <p class="mobile-menu-kicker">Navega&ccedil;&atilde;o</p>
+                            <p class="mobile-menu-title">Painel JML Cursos</p>
+                        </div>
+                        <button type="button" class="mobile-menu-close" data-mobile-close aria-label="Fechar menu">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <nav class="mobile-menu-card" aria-label="Acesso r&aacute;pido">
+                        <button type="button" data-abrir-aba="home" class="mobile-menu-link is-current">
+                            <i class="fa-solid fa-house w-4"></i>
+                            <span>Home</span>
+                        </button>
+                        <button type="button" data-abrir-aba="dashboard" class="mobile-menu-link">
+                            <i class="fa-solid fa-chart-line w-4"></i>
+                            <span>Dashboard</span>
+                        </button>
+                        <button type="button" data-abrir-aba="ranking" class="mobile-menu-link">
+                            <i class="fa-solid fa-trophy w-4"></i>
+                            <span>Ranking</span>
+                        </button>
+                        <div class="mobile-menu-divider"></div>
+                        <button id="btnLogoutMobile" data-logout type="button" class="mobile-menu-link mobile-menu-link--logout">
+                            <i class="fa-solid fa-right-from-bracket w-4"></i>
+                            <span>Sair</span>
+                        </button>
+                    </nav>
+                </aside>
+            </div>
+        </div>
     </header>
 
-    <!-- 🔹 TROCA DE DIV PARA MAIN -->
-    <main class="container">
-
-        <!-- ================= HOME ================= -->
-        <section id="home" class="tab-content active">
-
-            <div class="home-welcome">
-                <h2>Olá! O que vamos analisar hoje?</h2>
-                <p>Selecione uma das áreas abaixo para visualizar os dados de participação e origem.</p>
-
-                <div class="home-cards">
-                    <div class="card-link">
-                        <span>📊</span>
-                        <h3>Dashboard</h3>
-                        <p>Gráficos detalhados por curso e evento individual.</p>
-                    </div>
-
-                    <div class="card-link">
-                        <span>🏆</span>
-                        <h3>Rankings</h3>
-                        <p>Os cursos com mais respostas e os melhores canais de entrada.</p>
+    <main class="container mx-auto my-4 flex w-full max-w-[1600px] flex-1 flex-col rounded-[28px] bg-white shadow-shell sm:my-6">
+        <section id="home" class="tab-content home-section relative block flex-1 overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,#ffffff_0%,#f4f6fa_100%)] px-4 py-6 sm:px-6 md:px-8 md:py-8 xl:px-10 xl:py-10">
+            <div class="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-6 lg:gap-8">
+                <div class="rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-sm md:p-8">
+                    <div class="grid gap-6 lg:grid-cols-[1.35fr_1fr] lg:items-center">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-violet-500">Painel JML Cursos</p>
+                            <h2 class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Olá! O que vamos analisar hoje?</h2>
+                            <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base">A Home agora reúne um resumo rápido da plataforma para facilitar a navegação e acelerar o acesso aos dados principais.</p>
+                            <div class="mt-5 flex flex-wrap gap-2 text-xs font-medium text-slate-600 sm:text-sm">
+                                <span class="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700">Dados por curso</span>
+                                <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">Ranking por origem</span>
+                                <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Filtros por ano</span>
+                            </div>
+                        </div>
+                        <div class="home-highlight rounded-2xl border border-slate-200 bg-[linear-gradient(145deg,#f8fafc,#eef2ff)] p-5 shadow-inner md:p-6">
+                            <p class="home-highlight-title text-sm font-bold tracking-wide text-slate-800 sm:text-base">Destaque do dia</p>
+                            <p class="mt-3 text-sm leading-6 text-slate-600">Use o Dashboard para identificar variações por origem e compare com o Ranking para priorizar os canais de maior impacto.</p>
+                            <div class="home-highlight-tip mt-4 flex items-center gap-3 rounded-xl bg-white p-3">
+                                <div class="home-highlight-icon flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+                                    <i class="fa-solid fa-lightbulb"></i>
+                                </div>
+                                <p class="text-sm font-medium text-slate-700">Sugestão: inicie por 2025 para uma visão mais completa.</p>
+                            </div>
+                            <div class="mt-5 flex flex-wrap gap-2.5">
+                                <button id="btnHomeIrDashboard" type="button" data-abrir-aba="dashboard" data-dashboard-ano="2025" class="home-nav-btn home-nav-btn--primary inline-flex items-center gap-2 rounded-lg border-2 border-transparent bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 sm:text-sm">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                    <span>Ir para Dashboard</span>
+                                </button>
+                                <button id="btnHomeIrRanking" type="button" data-abrir-aba="ranking" class="home-nav-btn home-nav-btn--secondary inline-flex items-center gap-2 rounded-lg border-2 border-transparent bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 sm:text-sm">
+                                    <i class="fa-solid fa-trophy"></i>
+                                    <span>Ir para Ranking</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
+                <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <article class="home-action rounded-xl border border-slate-200 bg-white p-5 shadow-sm" role="button" tabindex="0" aria-label="Abrir Dashboard" data-abrir-aba="dashboard">
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Módulo</p>
+                        <p class="mt-2 text-lg font-semibold text-slate-900">Dashboard</p>
+                        <p class="mt-1 text-sm text-slate-500">Análise detalhada por evento e origem.</p>
+                    </article>
+                    <article class="home-action rounded-xl border border-slate-200 bg-white p-5 shadow-sm" role="button" tabindex="0" aria-label="Abrir Ranking" data-abrir-aba="ranking">
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Módulo</p>
+                        <p class="mt-2 text-lg font-semibold text-slate-900">Ranking</p>
+                        <p class="mt-1 text-sm text-slate-500">Top eventos e canais com maior resposta.</p>
+                    </article>
+                    <article class="home-action rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Filtro</p>
+                        <p class="mt-2 text-lg font-semibold text-slate-900">Ano</p>
+                        <p class="mt-1 text-sm text-slate-500">Compare períodos sem perder contexto.</p>
+                    </article>
+                    <article class="home-action rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Objetivo</p>
+                        <p class="mt-2 text-lg font-semibold text-slate-900">Decisão rápida</p>
+                        <p class="mt-1 text-sm text-slate-500">Transformar respostas em ação prática.</p>
+                    </article>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+                    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div class="flex items-center justify-between gap-3">
+                            <h3 class="text-lg font-bold text-slate-900">Atalhos rápidos</h3>
+                            <span class="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Acesso direto</span>
+                        </div>
+                        <p class="mt-2 text-sm text-slate-500">Escolha a área principal para continuar a análise.</p>
+                        <div class="home-cards mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div class="home-action relative w-full overflow-hidden rounded-[18px] border border-slate-200 bg-white px-5 py-6 text-center shadow-sm" role="button" tabindex="0" aria-label="Abrir Dashboard" data-abrir-aba="dashboard">
+                                <span class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-2xl text-jml-purple">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                </span>
+                                <h4 class="text-lg font-bold text-slate-900">Dashboard</h4>
+                                <p class="mt-2 text-sm leading-6 text-slate-500">Gráficos detalhados por curso e evento individual.</p>
+                            </div>
+
+                            <div class="home-action relative w-full overflow-hidden rounded-[18px] border border-slate-200 bg-white px-5 py-6 text-center shadow-sm" role="button" tabindex="0" aria-label="Abrir Ranking" data-abrir-aba="ranking">
+                                <span class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-2xl text-emerald-500">
+                                    <i class="fa-solid fa-trophy"></i>
+                                </span>
+                                <h4 class="text-lg font-bold text-slate-900">Rankings</h4>
+                                <p class="mt-2 text-sm leading-6 text-slate-500">Eventos mais relevantes e canais com maior alcance.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="home-action rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-900">Visão geral do sistema</h3>
+                        <p class="mt-2 text-sm leading-6 text-slate-500">Fluxo recomendado para extrair mais valor dos dados:</p>
+                        <ol class="mt-4 space-y-3 text-sm text-slate-600">
+                            <li class="flex gap-3">
+                                <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700">1</span>
+                                <span>Selecione o ano para alinhar a comparação histórica.</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">2</span>
+                                <span>No Dashboard, avalie comportamento por origem.</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-700">3</span>
+                                <span>No Ranking, identifique prioridades de ação.</span>
+                            </li>
+                        </ol>
+                        <div class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <p class="text-sm font-medium text-slate-700">Tudo pronto para começar: use os atalhos e siga para a análise completa.</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
         </section>
 
-        <!-- ================= DASHBOARD ================= -->
-        <section id="dashboard" class="tab-content">
-
-            <div class="dashboard-header">
-                <h2>Visão Geral dos Cursos</h2>
-                <p>Acompanhe o desempenho dos cursos e eventos com base nas respostas coletadas.</p>
+        <section id="dashboard" class="tab-content relative flex-1 overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,#ffffff_0%,#f4f6fa_100%)] px-4 py-8 sm:px-6 md:px-8 md:py-10 xl:px-10 xl:py-12" style="display: none;">
+            <div class="pointer-events-none absolute -top-16 right-0 h-52 w-52 rounded-full bg-[radial-gradient(circle,rgba(200,107,255,0.12),transparent_70%)]"></div>
+            <div class="pointer-events-none absolute -bottom-16 -left-10 h-52 w-52 rounded-full bg-[radial-gradient(circle,rgba(53,255,138,0.1),transparent_70%)]"></div>
+            <div class="relative z-10 mx-auto flex w-full max-w-7xl flex-col">
+            <div class="dashboard-header mb-7 sm:mb-8">
+                <h2 class="inline-block text-2xl font-extrabold tracking-tight text-slate-900 sm:text-[1.65rem]">Vis&atilde;o Geral dos Cursos</h2>
+                <span class="mt-2 block h-1 w-24 rounded-full bg-[linear-gradient(90deg,#9d50bb,#35ff8a)]"></span>
+                <p class="mt-4 max-w-3xl text-sm leading-7 text-slate-500 sm:text-base">Acompanhe o desempenho dos cursos e eventos com base nas respostas coletadas.</p>
+                <div class="mt-4 flex flex-wrap gap-2 text-xs font-medium text-slate-600 sm:text-sm">
+                    <span class="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700">Comparativo anual</span>
+                    <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">Distribui&ccedil;&atilde;o por origem</span>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Atualiza&ccedil;&atilde;o din&acirc;mica</span>
+                </div>
             </div>
 
-            <div class="filter-row">
+            <div class="filter-row gradient-panel mb-6 grid gap-3.5 rounded-[22px] border border-slate-100 p-4 shadow-[0_8px_22px_rgba(15,23,42,0.06)] sm:p-5 md:grid-cols-[160px_minmax(0,1fr)] lg:grid-cols-[160px_minmax(0,1fr)_240px] lg:items-stretch lg:gap-4 xl:grid-cols-[170px_minmax(0,1fr)_255px]">
+                <label class="flex min-w-0 min-h-[112px] flex-col justify-between rounded-2xl border border-slate-200 bg-white/95 px-3.5 py-3 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
+                    <span class="block text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Ano</span>
+                    <select id="filtroAno" class="mt-2 h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 text-[0.95rem] font-medium text-slate-700 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </label>
 
-                <div class="filter-group">
-                    <label>Ano:
-                        <select id="filtroAno">
-                            <option value="2023">2023</option>
-                            <option value="2024" selected>2024</option>
-                            <option value="2025">2025</option>
-                        </select>
-                    </label>
+                <label class="flex min-w-0 min-h-[112px] flex-col justify-between rounded-2xl border border-slate-200 bg-white/95 px-3.5 py-3 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
+                    <span class="block text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Curso</span>
+                    <select id="filtroCurso" class="mt-2 h-11 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 text-[0.95rem] font-medium text-slate-700 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"></select>
+                </label>
 
-                    <label>Curso:
-                        <select id="filtroCurso"></select>
-                    </label>
-                </div>
-
-                <div class="total-badge">
-                    <h2>Total de Respostas:
+                <div class="total-badge relative min-h-[112px] min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-4 py-3.5 text-center shadow-[0_2px_10px_rgba(15,23,42,0.05)] md:col-span-2 lg:col-span-1">
+                    <div class="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-[linear-gradient(90deg,rgba(157,80,187,0.32),rgba(53,255,138,0.32))]"></div>
+                    <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Total de Respostas</p>
+                    <h2 class="mt-2 text-[2rem] font-extrabold leading-none tracking-tight text-slate-900 sm:text-[2.1rem]">
                         <span id="total-respostas">0</span>
                     </h2>
+                    <p class="mt-1 text-xs font-medium text-slate-500">respostas no filtro atual</p>
                 </div>
-
             </div>
 
-            <!-- Adicione uma classe para agrupar os botões -->
-            <div class="grafico-botoes">
-                <button class="grafico-btn" data-tipo="horizontal">📊 Barras verticais</button>
-                <button class="grafico-btn" data-tipo="linhasMultiplas">📈 Linhas Múltiplas</button>
+            <div class="dashboard-modes home-action mb-6 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm sm:p-5">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="max-w-xl">
+                        <p class="text-sm font-semibold text-slate-800">Modo de visualiza&ccedil;&atilde;o dos gr&aacute;ficos</p>
+                        <p class="mt-1 text-sm text-slate-500">Alterne rapidamente o formato para comparar tend&ecirc;ncia geral ou analisar eventos em detalhes.</p>
+                    </div>
+                    <div class="grafico-botoes flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
+                        <button type="button" class="grafico-btn flex items-center justify-center gap-2 rounded-2xl border-2 border-transparent bg-[linear-gradient(#f8fafc,#f8fafc)_padding-box,linear-gradient(90deg,#c8b6ff,#b8e0d2)_border-box] px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-[linear-gradient(#ffffff,#ffffff)_padding-box,linear-gradient(90deg,#9d50bb,#35ff8a)_border-box] hover:shadow-md" data-tipo="horizontal">
+                            <i class="fa-solid fa-chart-column"></i>
+                            <span>Barras verticais</span>
+                        </button>
+                        <button type="button" class="grafico-btn active flex items-center justify-center gap-2 rounded-2xl border-2 border-transparent bg-[linear-gradient(#f8fafc,#f8fafc)_padding-box,linear-gradient(90deg,#c8b6ff,#b8e0d2)_border-box] px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-[linear-gradient(#ffffff,#ffffff)_padding-box,linear-gradient(90deg,#9d50bb,#35ff8a)_border-box] hover:shadow-md" data-tipo="linhasMultiplas">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span>Linhas m&uacute;ltiplas</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- 🔹 NOVO WRAPPER DOS GRÁFICOS -->
-            <div class="graficos-wrapper">
-                <div id="graficos">
+            <div class="graficos-wrapper home-action rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.05)] sm:p-6">
+                <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <h3 class="text-base font-bold text-slate-900 sm:text-lg">Gr&aacute;ficos principais</h3>
+                    <span class="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Atualiza&ccedil;&atilde;o autom&aacute;tica por filtro</span>
+                </div>
+                <div id="graficos" class="w-full">
                     <p class="placeholder">Carregando dados...</p>
                 </div>
             </div>
-
-
+            <div class="dashboard-bottom mt-6 grid gap-4 lg:grid-cols-2">
+                <article class="home-action rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Leitura recomendada</p>
+                    <h3 class="mt-2 text-lg font-bold text-slate-900">Como interpretar os gr&aacute;ficos</h3>
+                    <p class="mt-2 text-sm leading-6 text-slate-500">Comece pelo total de respostas, valide a consist&ecirc;ncia por ano e em seguida compare as origens com melhor desempenho em cada evento.</p>
+                </article>
+                <article class="home-action rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Boas pr&aacute;ticas</p>
+                    <h3 class="mt-2 text-lg font-bold text-slate-900">An&aacute;lise com contexto</h3>
+                    <p class="mt-2 text-sm leading-6 text-slate-500">Use o filtro de curso para reduzir ru&iacute;do e alterne o tipo de visualiza&ccedil;&atilde;o para confirmar tend&ecirc;ncias antes de tomar decis&otilde;es.</p>
+                </article>
+            </div>
+            </div>
         </section>
 
-        <!-- ================= RANKING ================= -->
-        <section id="ranking" class="tab-content">
+        <section id="ranking" class="tab-content relative flex-1 overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,#ffffff_0%,#f4f6fa_100%)] px-4 py-8 sm:px-6 md:px-8 md:py-10 xl:px-10 xl:py-12" style="display: none;">
+            <div class="pointer-events-none absolute -right-32 -top-24 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,rgba(200,107,255,0.12),transparent_70%)]"></div>
+            <div class="pointer-events-none absolute -bottom-28 -left-28 h-[20rem] w-[20rem] rounded-full bg-[radial-gradient(circle,rgba(53,255,138,0.1),transparent_70%)]"></div>
 
-            <!-- 🔹 WRAPPER INTERNO PARA ORGANIZAÇÃO -->
-            <div class="toolbar-ranking">
-                <div class="toolbar-content">
-
-                    <div class="filter-group">
-                        <label>Ano:
-                            <select id="filtroAnoRanking">
+            <div class="toolbar-ranking relative z-10 mb-8">
+                <div class="toolbar-content ranking-filter-row gradient-panel flex flex-col gap-4 rounded-[22px] p-4 shadow-[0_10px_25px_rgba(0,0,0,0.06)] sm:p-5 xl:flex-row xl:items-center xl:justify-between">
+                    <div class="filter-group grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:max-w-[30rem]">
+                        <label class="block text-sm font-semibold text-slate-800">
+                            <span class="mb-2 block">Ano</span>
+                            <select id="filtroAnoRanking" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100">
                                 <option value="">Todos os anos</option>
                                 <option value="2023">2023</option>
                                 <option value="2024">2024</option>
@@ -149,54 +342,56 @@
                             </select>
                         </label>
 
-                        <label>Tipo:
-                            <select id="filtroRanking">
+                        <label class="block text-sm font-semibold text-slate-800">
+                            <span class="mb-2 block">Tipo</span>
+                            <select id="filtroRanking" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100">
                                 <option value="eventos">Eventos</option>
                                 <option value="origens">Canais de Entrada</option>
                             </select>
                         </label>
                     </div>
 
-                    <div class="ranking-actions">
-
-                        <button id="btnToggleRanking" class="switch-btn" type="button">
-                            🏆 Mostrar todos os eventos
+                    <div class="ranking-actions flex w-full flex-col gap-3 lg:flex-row lg:flex-wrap lg:justify-end xl:w-auto">
+                        <button id="btnToggleRanking" class="switch-btn ranking-control-btn inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 bg-[linear-gradient(180deg,#ffffff_0%,#f4f8fb_100%)] px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-[linear-gradient(180deg,#ffffff_0%,#eef4fa_100%)]" type="button">
+                            <i class="fa-solid fa-ranking-star mr-2"></i>
+                            <span>Mostrar todos os eventos</span>
                         </button>
 
-                        <div id="viewOptionsOrigens" class="view-switch">
-                            <button class="switch-btn active" data-view="lista">
-                                📋 Lista
+                        <div id="viewOptionsOrigens" class="view-switch inline-flex w-full items-center rounded-xl border border-slate-300 bg-[linear-gradient(180deg,#f4f7fa_0%,#e9eef4_100%)] p-1 lg:w-auto">
+                            <button class="switch-btn ranking-control-btn active flex-1 rounded-lg bg-[linear-gradient(135deg,#9d50bb,#6e48aa)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition lg:flex-none" data-view="lista">
+                                <i class="fa-solid fa-list-ul mr-2"></i>
+                                <span>Lista</span>
                             </button>
 
-                            <button class="switch-btn" data-view="grafico">
-                                📊 Gráfico
+                            <button class="switch-btn ranking-control-btn flex-1 rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-white/70 lg:flex-none" data-view="grafico">
+                                <i class="fa-solid fa-chart-bar mr-2"></i>
+                                <span>Gr&aacute;fico</span>
                             </button>
                         </div>
-
                     </div>
                 </div>
             </div>
-            <div class="ranking-wrapper">
 
+            <div class="ranking-wrapper relative z-10 rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] p-4 shadow-[0_16px_30px_rgba(15,23,42,0.08)] sm:p-6">
+                <div id="rankingTotalRespostas" class="ranking-total-summary hidden" aria-live="polite"></div>
                 <div id="ranking-container">
                     <div id="rankingEventos"></div>
                     <div id="listaRankingOrigens" class="hidden"></div>
                     <canvas id="rankingOrigens" class="hidden"></canvas>
                 </div>
 
-                <div id="legendaFiltro" class="info-label"></div>
-
+                <div id="legendaFiltro" class="info-label mt-5"></div>
             </div>
-
         </section>
-
     </main>
-    <footer class="main-footer">
-        <p>© 2026 JML Cursos • Painel de Indicadores • Todos os direitos reservados</p>
+
+    <footer class="main-footer mx-auto w-full max-w-[1600px] px-4 py-4 text-center text-xs font-medium tracking-[0.03em] text-slate-500 sm:px-6 lg:px-8">
+        <p>&copy; 2026 JML Cursos - Painel de Indicadores - Todos os direitos reservados</p>
     </footer>
+
     <script type="module" src="js/core/main.js"></script>
-
-
 </body>
 
 </html>
+
+
