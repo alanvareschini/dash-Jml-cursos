@@ -53,7 +53,7 @@ function limparNomeEvento(nomeOriginal = '', tipoEvento = '') {
 
     if (tipoClassificado === 'misto') {
         return nomeOriginal
-            .replace(/\s*-\s*(Misto|H[íi]brido|Presencial\s*e\s*Online)\b/i, '')
+            .replace(/\s*-\s*(Misto|H[\u00edi]brido|Presencial\s*e\s*Online)\b/i, '')
             .trim();
     }
 
@@ -70,7 +70,7 @@ function limparNomeEvento(nomeOriginal = '', tipoEvento = '') {
 
 function limparSufixosTipoNome(nome = '') {
     return String(nome)
-        .replace(/\s*-\s*(Presencial|On-?line|Online|Misto|H[íi]brido|Presencial\s*e\s*Online)\b/i, '')
+        .replace(/\s*-\s*(Presencial|On-?line|Online|Misto|H[\u00edi]brido|Presencial\s*e\s*Online)\b/i, '')
         .trim();
 }
 
@@ -157,6 +157,7 @@ export async function carregarDashboard() {
 
     const ano = filtroAno.value;
     const curso = filtroCurso.value;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
     if (!curso) {
         container.innerHTML = '<p class="placeholder">Selecione um curso para visualizar os dados.</p>';
@@ -281,8 +282,24 @@ export async function carregarDashboard() {
                     duration: 900,
                     easing: 'easeOutQuart'
                 },
+                layout: {
+                    padding: isMobile
+                        ? { top: 4, right: 12, bottom: 0, left: 12 }
+                        : { top: 8, right: 10, bottom: 0, left: 10 }
+                },
                 plugins: {
-                    legend: { position: 'top' },
+                    legend: {
+                        position: isMobile ? 'bottom' : 'top',
+                        labels: {
+                            boxWidth: isMobile ? 10 : 16,
+                            boxHeight: isMobile ? 10 : 12,
+                            padding: isMobile ? 10 : 14,
+                            font: {
+                                size: isMobile ? 10 : 12,
+                                weight: isMobile ? '600' : '500'
+                            }
+                        }
+                    },
                     tooltip: {
                         callbacks: {
                             label(context) {
@@ -294,16 +311,42 @@ export async function carregarDashboard() {
                 scales: {
                     x: {
                         grid: { display: false },
+                        offset: isMobile,
+                        ticks: {
+                            autoSkip: isMobile,
+                            maxTicksLimit: isMobile ? 6 : undefined,
+                            maxRotation: isMobile ? 22 : 0,
+                            minRotation: 0,
+                            padding: isMobile ? 8 : 6,
+                            callback(value) {
+                                const texto = String(this.getLabelForValue(value) ?? '');
+                                if (!isMobile || texto.length <= 14) return texto;
+                                return `${texto.slice(0, 14)}...`;
+                            },
+                            font: {
+                                size: isMobile ? 11 : 12,
+                                weight: isMobile ? '600' : '500'
+                            }
+                        },
                         title: {
-                            display: true,
+                            display: !isMobile,
                             text: 'Origens'
                         }
                     },
                     y: {
                         beginAtZero: true,
+                        grace: '8%',
                         grid: { color: '#f0f0f0' },
+                        ticks: {
+                            precision: 0,
+                            padding: isMobile ? 8 : 6,
+                            font: {
+                                size: isMobile ? 11 : 12,
+                                weight: isMobile ? '600' : '500'
+                            }
+                        },
                         title: {
-                            display: true,
+                            display: !isMobile,
                             text: 'N\u00famero de respostas'
                         }
                     }
@@ -369,9 +412,50 @@ export async function carregarDashboard() {
                 responsive: true,
                 maintainAspectRatio: false,
                 aspectRatio: 2,
+                layout: {
+                    padding: isMobile
+                        ? { top: 6, right: 12, bottom: 0, left: 12 }
+                        : { top: 10, right: 12, bottom: 0, left: 8 }
+                },
                 plugins: {
                     legend: {
                         display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        offset: isMobile,
+                        ticks: {
+                            autoSkip: isMobile,
+                            maxTicksLimit: isMobile ? 6 : undefined,
+                            maxRotation: isMobile ? 20 : 0,
+                            minRotation: 0,
+                            padding: isMobile ? 8 : 6,
+                            callback(value) {
+                                const texto = String(this.getLabelForValue(value) ?? '');
+                                if (!isMobile || texto.length <= 14) return texto;
+                                return `${texto.slice(0, 14)}...`;
+                            },
+                            font: {
+                                size: isMobile ? 11 : 12,
+                                weight: isMobile ? '600' : '500'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grace: '8%',
+                        ticks: {
+                            precision: 0,
+                            padding: isMobile ? 8 : 6,
+                            font: {
+                                size: isMobile ? 11 : 12,
+                                weight: isMobile ? '600' : '500'
+                            }
+                        }
                     }
                 }
             }

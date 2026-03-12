@@ -1,5 +1,5 @@
 export function abrirAba(id) {
-    // 1. Esconde as seções
+    // 1. Esconde as secoes
     document.getElementById('home').style.display = 'none';
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('ranking').style.display = 'none';
@@ -7,7 +7,7 @@ export function abrirAba(id) {
     // 2. Mostra a clicada
     document.getElementById(id).style.display = 'block';
 
-    // 3. Atualiza botões e linha
+    // 3. Atualiza botoes e linha
     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
 
     const btnAtivo = document.getElementById('btn-' + id);

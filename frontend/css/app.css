@@ -1547,11 +1547,11 @@ body.mobile-menu-open {
     }
 
     .chart-canvas-wrap {
-        min-height: 15rem;
+        min-height: clamp(16.5rem, 44vh, 19rem);
     }
 
     .chart-card--wide .chart-canvas-wrap {
-        min-height: 18rem;
+        min-height: clamp(19rem, 50vh, 22rem);
     }
 
     .ranking-item {
@@ -1578,8 +1578,8 @@ body.mobile-menu-open {
     }
 
     #rankingOrigens {
-        min-height: 22rem;
-        height: clamp(22rem, 78vw, 28rem) !important;
+        min-height: clamp(21rem, 52vh, 24rem);
+        height: clamp(21rem, 52vh, 24rem) !important;
     }
 }
 
@@ -1592,8 +1592,17 @@ body.mobile-menu-open {
         font-size: 0.78rem;
     }
 
+    .chart-canvas-wrap {
+        min-height: clamp(15.5rem, 42vh, 18rem);
+    }
+
+    .chart-card--wide .chart-canvas-wrap {
+        min-height: clamp(18rem, 48vh, 20.5rem);
+    }
+
     #rankingOrigens {
-        min-height: 20rem;
-        height: 20rem !important;
+        min-height: clamp(19.5rem, 50vh, 22.5rem);
+        height: clamp(19.5rem, 50vh, 22.5rem) !important;
     }
 }
+

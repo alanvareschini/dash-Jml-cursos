@@ -1,22 +1,23 @@
 CREATE DATABASE IF NOT EXISTS jml_cursos;
 USE jml_cursos;
-
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
 -- 1. Limpeza total da estrutura (Recria a tabela do zero)
 DROP TABLE IF EXISTS respostas_origem;
 
 CREATE TABLE respostas_origem (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome_evento VARCHAR(500) NOT NULL, -- Aumentado para nomes longos
+    nome_evento VARCHAR(500) NOT NULL, 
     ano INT NOT NULL,
     origem VARCHAR(100) NOT NULL,
-    quantidades_respostas INT DEFAULT 0, -- Padrão zero para não distorcer dados
-    tipo_evento VARCHAR(50), -- Online, Presencial ou Híbrido
-    local_evento VARCHAR(150) DEFAULT 'Brasil', -- 'Brasil' como padrão para Online
+    quantidades_respostas INT DEFAULT 0, 
+    tipo_evento VARCHAR(50), 
+    local_evento VARCHAR(150) DEFAULT 'Brasil', 
     data_inicio DATE DEFAULT NULL,
     data_fim DATE DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; 
--- O charset acima garante que acentos e símbolos (como o º de 22º) não quebrem.
--- Limpa a tabela (por segurança)
+
+
 TRUNCATE TABLE respostas_origem;
 
 -- Núcleo Sistema S - Presencial

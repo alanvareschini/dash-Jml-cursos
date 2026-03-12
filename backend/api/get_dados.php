@@ -7,7 +7,7 @@ $ano = isset($_GET['ano']) ? intval($_GET['ano']) : 2024;
 $evento = isset($_GET['curso']) && !empty($_GET['curso']) ? $_GET['curso'] : '';
 
 if (empty($evento)) {
-    echo json_encode(["error" => "O parâmetro 'curso' é obrigatório."]);
+    echo json_encode(["error" => "O par\u00e2metro 'curso' \u00e9 obrigat\u00f3rio."]);
     exit;
 }
 

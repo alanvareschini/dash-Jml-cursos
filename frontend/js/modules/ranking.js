@@ -47,6 +47,8 @@ function renderizarGraficoOrigens(ranking) {
     const ctx = grafico.getContext('2d');
     if (!ctx) return;
 
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+
     destruirGraficoOrigens();
     chartRankingOrigens = new Chart(ctx, {
         type: 'bar',
@@ -55,14 +57,24 @@ function renderizarGraficoOrigens(ranking) {
             datasets: [{
                 label: 'Total de respostas',
                 data: ranking.map(r => r.total_respostas),
-                backgroundColor: 'rgba(157, 80, 187, 0.6)'
+                backgroundColor: 'rgba(157, 80, 187, 0.6)',
+                borderRadius: 8,
+                borderSkipped: false,
+                barThickness: isMobile ? 22 : 28,
+                maxBarThickness: isMobile ? 28 : 34
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: isMobile
+                    ? { top: 6, right: 12, bottom: 0, left: 12 }
+                    : { top: 10, right: 12, bottom: 0, left: 8 }
+            },
             plugins: {
                 legend: {
+                    display: !isMobile,
                     labels: {
                         font: {
                             size: 17,
@@ -73,17 +85,36 @@ function renderizarGraficoOrigens(ranking) {
             },
             scales: {
                 x: {
+                    offset: isMobile,
                     ticks: {
+                        autoSkip: isMobile,
+                        maxTicksLimit: isMobile ? 6 : undefined,
+                        maxRotation: isMobile ? 20 : 0,
+                        minRotation: 0,
+                        padding: isMobile ? 8 : 6,
+                        callback(value) {
+                            const texto = String(this.getLabelForValue(value) ?? '');
+                            if (!isMobile || texto.length <= 14) return texto;
+                            return `${texto.slice(0, 14)}...`;
+                        },
                         font: {
-                            size: 15
+                            size: isMobile ? 12 : 15,
+                            weight: isMobile ? '600' : '500'
                         }
+                    },
+                    grid: {
+                        display: false
                     }
                 },
                 y: {
                     beginAtZero: true,
+                    grace: '8%',
                     ticks: {
+                        precision: 0,
+                        padding: isMobile ? 8 : 6,
                         font: {
-                            size: 15
+                            size: isMobile ? 12 : 15,
+                            weight: isMobile ? '600' : '500'
                         }
                     }
                 }
@@ -308,7 +339,7 @@ export async function carregarRankingEventos() {
         ranking = await getRankingEventos(ano);
     } catch (error) {
         console.error('Erro ao carregar ranking de eventos:', error);
-        container.innerHTML = '<p class="placeholder">Não foi possível carregar o ranking de eventos.</p>';
+        container.innerHTML = '<p class="placeholder">N\u00e3o foi poss\u00edvel carregar o ranking de eventos.</p>';
         ocultarResumoTotalRanking();
         return;
     }
@@ -370,7 +401,7 @@ export async function carregarRankingOrigens() {
         ranking = await getRankingOrigens(ano);
     } catch (error) {
         console.error('Erro ao carregar ranking de origens:', error);
-        containerLista.innerHTML = '<p class="placeholder">Não foi possível carregar o ranking de origens.</p>';
+        containerLista.innerHTML = '<p class="placeholder">N\u00e3o foi poss\u00edvel carregar o ranking de origens.</p>';
         ocultarResumoTotalRanking();
         mudarVisaoOrigem('lista');
         return;
@@ -406,7 +437,7 @@ export function atualizarRanking() {
     if (tipo === 'eventos') {
         tipoRankingAtual = 'eventos';
         if (legenda) {
-            legenda.innerText = 'Exibindo o ranking de participação por cada curso/evento realizado.';
+            legenda.innerText = 'Exibindo o ranking de participa\u00e7\u00e3o por cada curso/evento realizado.';
         }
 
         mostrarElemento(rankingEventos);
